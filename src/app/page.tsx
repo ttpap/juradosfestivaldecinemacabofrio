@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { Film, Vote, Trophy, Users } from 'lucide-react'
 import { createClient as createServerClient } from '@/lib/supabase/server'
 import { createClient } from '@supabase/supabase-js'
+import { QRButton } from '@/components/QRButton'
 
 export const dynamic = 'force-dynamic'
 
@@ -49,13 +50,14 @@ export default async function HomePage() {
       <header className="border-b border-ocean-800 bg-ocean-900/80 backdrop-blur sticky top-0 z-10">
         <div className="max-w-5xl mx-auto px-4 py-4 flex items-center gap-3">
           <Image src="/logo.png" alt="FINCCA" width={100} height={54} className="object-contain" />
-          <div className="ml-auto flex items-center gap-3">
-            <Link href="/admin/login" className="text-xs text-ocean-400 hover:text-white border border-ocean-700 rounded-lg px-3 py-1.5 transition-colors">
+          <div className="ml-auto flex items-center gap-2">
+            <QRButton path="/cadastro" label="QR Code" />
+            <Link href="/admin/login" className="text-xs text-ocean-400 hover:text-white border border-ocean-700 rounded-lg px-3 py-1.5 transition-colors sm:flex hidden">
               Área Admin
             </Link>
             {festival?.voting_open && (
               <Link href="/cadastro"
-                className="flex items-center gap-2 rounded-xl bg-gold-500 px-5 py-2.5 text-sm font-bold text-ocean-950 hover:bg-gold-400 transition-colors">
+                className="flex items-center gap-2 rounded-xl bg-gold-500 px-4 py-2.5 text-sm font-bold text-ocean-950 hover:bg-gold-400 transition-colors">
                 <Vote className="w-4 h-4" />
                 Votar agora
               </Link>

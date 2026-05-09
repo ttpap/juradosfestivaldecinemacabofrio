@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { Film, BarChart2, Power, PowerOff, Plus } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
+import { QRButton } from '@/components/QRButton'
 
 export default async function AdminPage() {
   const supabase = await createClient()
@@ -35,8 +36,11 @@ export default async function AdminPage() {
       <header className="border-b border-ocean-800 bg-ocean-900/80 sticky top-0 z-10">
         <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
           <h1 className="font-bold text-white">FINCCA Admin</h1>
-          <Link href="/api/auth/signout" prefetch={false}
-            className="text-xs text-ocean-400 hover:text-white transition-colors">Sair</Link>
+          <div className="flex items-center gap-3">
+            <QRButton path="/cadastro" label="QR Votação" />
+            <Link href="/api/auth/signout" prefetch={false}
+              className="text-xs text-ocean-400 hover:text-white transition-colors">Sair</Link>
+          </div>
         </div>
       </header>
 

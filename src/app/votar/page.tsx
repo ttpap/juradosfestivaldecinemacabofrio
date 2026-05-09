@@ -111,7 +111,7 @@ export default function VotarPage() {
   }
 
   return (
-    <main className="min-h-screen bg-ocean-950 pb-20">
+    <main className="min-h-screen bg-ocean-950 pb-24">
       <header className="border-b border-ocean-800 bg-ocean-900/80 backdrop-blur sticky top-0 z-10">
         <div className="max-w-3xl mx-auto px-4 py-4 flex items-center gap-4">
           <Link href="/" className="text-ocean-400 hover:text-white transition-colors">
@@ -122,11 +122,11 @@ export default function VotarPage() {
         </div>
       </header>
 
-      <div className="max-w-3xl mx-auto px-4 py-8">
+      <div className="max-w-3xl mx-auto px-4 py-6 sm:py-8">
 
         {/* Votante */}
-        <div className="mb-6 rounded-2xl border border-ocean-700 bg-ocean-800/40 px-5 py-3 flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-gold-500/20 flex items-center justify-center flex-shrink-0">
+        <div className="mb-6 rounded-2xl border border-ocean-700 bg-ocean-800/40 px-5 py-4 flex items-center gap-3">
+          <div className="w-9 h-9 rounded-full bg-gold-500/20 flex items-center justify-center flex-shrink-0">
             <span className="text-gold-400 text-sm font-bold">{voterName.charAt(0).toUpperCase()}</span>
           </div>
           <div className="flex-1 min-w-0">
@@ -152,10 +152,10 @@ export default function VotarPage() {
           </div>
         )}
 
-        <h1 className="text-2xl font-bold text-white mb-1">
+        <h1 className="text-2xl sm:text-3xl font-bold text-white mb-1">
           {isChanging ? 'Trocar voto' : 'Vote no melhor filme'}
         </h1>
-        <p className="text-ocean-400 text-sm mb-8">Escolha 1 filme. Um voto por pessoa.</p>
+        <p className="text-ocean-400 text-sm mb-6 sm:mb-8">Escolha 1 filme. Um voto por pessoa.</p>
 
         <div className="space-y-8">
           <div>
@@ -169,7 +169,7 @@ export default function VotarPage() {
                 const isPrevious = previousFilm === film.id
                 return (
                   <button key={film.id} type="button" onClick={() => setSelectedFilm(film.id)}
-                    className={`text-left rounded-2xl border p-4 transition-all ${
+                    className={`text-left rounded-2xl border p-4 sm:p-4 transition-all min-h-[80px] ${
                       selected && !isPrevious
                         ? 'border-gold-500 bg-gold-500/10 shadow-lg shadow-gold-500/10'
                         : isPrevious && selected

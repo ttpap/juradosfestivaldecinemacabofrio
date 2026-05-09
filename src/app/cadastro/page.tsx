@@ -33,7 +33,7 @@ export default function CadastroPage() {
   }
 
   return (
-    <main className="min-h-screen bg-ocean-950 flex flex-col items-center justify-center px-4 py-12 animate-fade-in">
+    <main className="min-h-screen bg-ocean-950 flex flex-col items-center justify-center px-5 py-12 animate-fade-in">
       <div className="max-w-sm w-full">
         <div className="flex items-center gap-4 mb-8">
           <Link href="/" className="text-[#64748b] hover:text-white transition-colors">
@@ -42,7 +42,7 @@ export default function CadastroPage() {
           <Image src="/logo.png" alt="FINCCA" width={120} height={65} className="object-contain" />
         </div>
 
-        <div className="rounded-2xl border border-ocean-700 bg-ocean-800 p-7 shadow-2xl">
+        <div className="rounded-2xl border border-ocean-700 bg-ocean-800 p-6 sm:p-7 shadow-2xl">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-10 h-10 rounded-xl bg-ocean-700 border border-ocean-600 flex items-center justify-center">
               <UserCheck className="w-5 h-5 text-gold-400" />
