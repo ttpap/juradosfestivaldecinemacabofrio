@@ -38,6 +38,20 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL('/admin/login?error=acesso_negado', request.url))
   }
 
+  // Force no-store on dynamic pages so browser bfcache cannot restore
+  // stale HTML (e.g. old voting toggle Link, old voting_open value).
+  // Static assets are excluded by the matcher below.
+  const isDynamicPage =
+    pathname === '/' ||
+    pathname.startsWith('/admin') ||
+    pathname.startsWith('/votar') ||
+    pathname.startsWith('/placar') ||
+    pathname.startsWith('/cadastro')
+
+  if (isDynamicPage) {
+    supabaseResponse.headers.set('Cache-Control', 'no-store, max-age=0, must-revalidate')
+  }
+
   return supabaseResponse
 }
 
