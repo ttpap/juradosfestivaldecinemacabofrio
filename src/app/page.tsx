@@ -1,7 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { Film, Vote, Trophy, Users } from 'lucide-react'
-import { createClient as createServerClient } from '@/lib/supabase/server'
 import { createClient } from '@supabase/supabase-js'
 import { QRButton } from '@/components/QRButton'
 
@@ -10,16 +9,14 @@ export const dynamic = 'force-dynamic'
 const MEDAL = ['🥇', '🥈', '🥉']
 
 export default async function HomePage() {
-  const supabase = await createServerClient()
-
-  const { data: festival } = await supabase
-    .from('festivals').select('*').order('created_at', { ascending: false }).limit(1).single()
-
-  // Service role para ler votos (RLS bloqueia anon)
+  // Service role bypasses RLS — festivals, films e votes bloqueiam leitura anon
   const admin = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   )
+
+  const { data: festival } = await admin
+    .from('festivals').select('*').order('created_at', { ascending: false }).limit(1).single()
 
   const [{ data: films }, { data: votes }] = await Promise.all([
     festival

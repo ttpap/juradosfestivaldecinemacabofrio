@@ -7,7 +7,6 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { ArrowLeft, Film, CheckCircle2, Vote, RefreshCw } from 'lucide-react'
-import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/Button'
 import { Toast } from '@/components/ui/Toast'
 import { LoadingSpinner } from '@/components/LoadingSpinner'
@@ -15,7 +14,6 @@ import type { Film as FilmType, Festival } from '@/types'
 
 export default function VotarPage() {
   const router = useRouter()
-  const supabase = createClient()
 
   const [festival, setFestival] = useState<Festival | null>(null)
   const [films, setFilms] = useState<FilmType[]>([])
@@ -35,13 +33,10 @@ export default function VotarPage() {
     setVoterEmail(email)
 
     async function load() {
-      const { data: fest } = await supabase
-        .from('festivals').select('*').order('created_at', { ascending: false }).limit(1).single()
+      const festRes = await fetch('/api/festival')
+      const { festival: fest, films: f } = await festRes.json()
       if (!fest) { setLoading(false); return }
       setFestival(fest)
-
-      const { data: f } = await supabase
-        .from('films').select('*').eq('festival_id', fest.id).eq('active', true).order('title')
       setFilms(f ?? [])
 
       // Verifica voto anterior
