@@ -69,23 +69,28 @@ export default async function AdminPage() {
           </div>
         </div>
 
-        {/* Voting toggle */}
+        {/* Voting toggle — form POST prevents prefetch from firing the toggle */}
         {festival && (
           <div className="flex flex-col sm:flex-row sm:items-center gap-4 rounded-2xl border border-ocean-700 bg-ocean-800/60 p-5">
             <div className="flex-1">
               <p className="font-semibold text-white">Votação pública</p>
               <p className="text-sm text-ocean-400">{festival.voting_open ? 'Votação aberta ao público' : 'Votação encerrada'}</p>
             </div>
-            <Link
-              href={`/api/admin/voting-control?festival_id=${festival.id}&voting_open=${!festival.voting_open}`}
-              className={`flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold transition-colors ${
-                festival.voting_open
-                  ? 'bg-red-500/20 border border-red-500/40 text-red-400 hover:bg-red-500/30'
-                  : 'bg-green-500/20 border border-green-500/40 text-green-400 hover:bg-green-500/30'
-              }`}>
-              {festival.voting_open ? <PowerOff className="w-4 h-4" /> : <Power className="w-4 h-4" />}
-              {festival.voting_open ? 'Fechar votação' : 'Abrir votação'}
-            </Link>
+            <form action="/api/admin/voting-control" method="POST">
+              <input type="hidden" name="festival_id" value={festival.id} />
+              <input type="hidden" name="voting_open" value={String(!festival.voting_open)} />
+              <button
+                type="submit"
+                className={`flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold transition-colors w-full sm:w-auto ${
+                  festival.voting_open
+                    ? 'bg-red-500/20 border border-red-500/40 text-red-400 hover:bg-red-500/30'
+                    : 'bg-green-500/20 border border-green-500/40 text-green-400 hover:bg-green-500/30'
+                }`}
+              >
+                {festival.voting_open ? <PowerOff className="w-4 h-4" /> : <Power className="w-4 h-4" />}
+                {festival.voting_open ? 'Fechar votação' : 'Abrir votação'}
+              </button>
+            </form>
           </div>
         )}
 
