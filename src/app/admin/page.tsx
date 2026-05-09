@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { Film, BarChart2, Power, PowerOff, Plus } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
+import { createClient as adminClient } from '@supabase/supabase-js'
 import { QRButton } from '@/components/QRButton'
 
 export default async function AdminPage() {
@@ -11,16 +12,21 @@ export default async function AdminPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/admin/login')
 
-  const { data: festival } = await supabase
+  const admin = adminClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+
+  const { data: festival } = await admin
     .from('festivals').select('*').order('created_at', { ascending: false }).limit(1).single()
 
   const { data: films } = festival
-    ? await supabase.from('films').select('*').eq('festival_id', festival.id).order('title')
+    ? await admin.from('films').select('*').eq('festival_id', festival.id).order('title')
     : { data: [] }
 
   // Contagem de votos por filme
   const { data: votes } = festival
-    ? await supabase.from('public_votes').select('film_id').eq('festival_id', festival.id)
+    ? await admin.from('public_votes').select('film_id').eq('festival_id', festival.id)
     : { data: [] }
 
   const voteCounts: Record<string, number> = {}
