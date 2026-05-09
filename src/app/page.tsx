@@ -6,6 +6,7 @@ import { Film, Vote, Trophy, Users, EyeOff } from 'lucide-react'
 import { createClient } from '@supabase/supabase-js'
 import { QRButton } from '@/components/QRButton'
 import { RevealText } from '@/components/RevealText'
+import { FilmGrid } from '@/components/FilmGrid'
 import { getResultsRevealed } from '@/lib/festival-settings'
 
 const MEDAL = ['🥇', '🥈', '🥉']
@@ -187,29 +188,9 @@ export default async function HomePage() {
             <h2 className="flex items-center gap-2 text-lg font-semibold text-ocean-200 mb-6">
               <Film className="w-5 h-5 text-gold-400" />
               Filmes em competição
+              <span className="ml-auto text-xs text-ocean-500 font-normal">toque para detalhes</span>
             </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              {films.map(film => (
-                <div key={film.id}
-                  className="rounded-2xl border border-ocean-700 bg-ocean-800/60 overflow-hidden hover:border-gold-500/40 transition-colors">
-                  {film.thumbnail_url ? (
-                    <img src={film.thumbnail_url} alt={film.title} className="w-full h-44 object-cover" />
-                  ) : (
-                    <div className="w-full h-44 bg-ocean-700 flex items-center justify-center">
-                      <Film className="w-10 h-10 text-ocean-500" />
-                    </div>
-                  )}
-                  <div className="p-4">
-                    {film.category && (
-                      <span className="text-xs font-medium text-gold-400 uppercase tracking-wide">{film.category}</span>
-                    )}
-                    <h3 className="font-bold text-white mt-1 leading-snug">{film.title}</h3>
-                    {film.director && <p className="text-sm text-ocean-400 mt-0.5">Dir. {film.director}</p>}
-                    {film.synopsis && <p className="text-xs text-ocean-500 mt-2 line-clamp-2">{film.synopsis}</p>}
-                  </div>
-                </div>
-              ))}
-            </div>
+            <FilmGrid films={films} />
           </section>
         )}
       </div>
