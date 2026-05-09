@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { createClient as adminClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 
 export async function GET(request: Request) {
@@ -14,13 +15,16 @@ export async function GET(request: Request) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.redirect(`${origin}/admin/login`)
 
-  const { data: profile } = await supabase
-    .from('profiles').select('role').eq('id', user.id).single()
-  if (!profile || profile.role !== 'admin') {
+  if (user.email !== 'antonpap@gmail.com') {
     return NextResponse.redirect(`${origin}/admin/login`)
   }
 
-  await supabase
+  const admin = adminClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+
+  await admin
     .from('festivals')
     .update({ voting_open: votingOpen })
     .eq('id', festivalId)
