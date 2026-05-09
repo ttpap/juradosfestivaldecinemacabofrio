@@ -142,10 +142,7 @@ function AdminLoginContent() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { setToast({ message: 'Erro de autenticação.', type: 'error' }); return }
 
-      const { data: profile } = await supabase
-        .from('profiles').select('role').eq('id', user.id).single()
-
-      if (!profile || profile.role !== 'admin') {
+      if (user.email !== 'antonpap@gmail.com') {
         await supabase.auth.signOut()
         setToast({ message: 'Acesso negado. Esta conta não tem permissão de administrador.', type: 'error' })
         return
