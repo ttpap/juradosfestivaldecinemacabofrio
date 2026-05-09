@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { Film, Vote, Trophy, Users, EyeOff } from 'lucide-react'
 import { createClient } from '@supabase/supabase-js'
 import { QRButton } from '@/components/QRButton'
+import { RevealText } from '@/components/RevealText'
 import { getResultsRevealed } from '@/lib/festival-settings'
 
 const MEDAL = ['🥇', '🥈', '🥉']
@@ -151,11 +152,12 @@ export default async function HomePage() {
                       <span className="w-6 text-center text-sm flex-shrink-0">
                         {i < 3 ? MEDAL[i] : <span className="text-ocean-500 text-xs">{i + 1}</span>}
                       </span>
-                      <p
-                        className={`flex-1 text-sm font-semibold truncate ${isLeader ? 'text-gold-300' : 'text-white'} ${!resultsRevealed ? 'select-none blur-md' : ''}`}
-                        aria-hidden={!resultsRevealed}
-                      >
-                        {resultsRevealed ? film.title : '████████████'}
+                      <p className={`flex-1 text-sm font-semibold truncate ${isLeader ? 'text-gold-300' : 'text-white'}`}>
+                        <RevealText
+                          revealed={resultsRevealed}
+                          filmId={film.id}
+                          title={film.title}
+                        />
                       </p>
                       <span className={`text-sm font-bold flex-shrink-0 ${isLeader ? 'text-gold-400' : 'text-ocean-300'}`}>
                         {film.votes} {film.votes === 1 ? 'voto' : 'votos'}

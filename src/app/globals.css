@@ -69,6 +69,43 @@ input[type='number']::-webkit-outer-spin-button {
   50%       { opacity: 0.55; }
 }
 
+@keyframes reveal {
+  0% {
+    opacity: 0;
+    transform: scale(1.4);
+    filter: blur(24px);
+    color: #f0c060;
+    text-shadow: 0 0 32px rgba(240, 192, 96, 0.95), 0 0 12px rgba(255, 255, 255, 0.6);
+    letter-spacing: 0.2em;
+  }
+  35% {
+    opacity: 1;
+    transform: scale(1.12);
+    filter: blur(0);
+    color: #f0c060;
+    text-shadow: 0 0 28px rgba(240, 192, 96, 1), 0 0 10px rgba(255, 255, 255, 0.4);
+    letter-spacing: 0.05em;
+  }
+  70% {
+    transform: scale(1.04);
+    color: #ffd980;
+    text-shadow: 0 0 16px rgba(240, 192, 96, 0.6);
+    letter-spacing: 0;
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0);
+    text-shadow: none;
+    letter-spacing: 0;
+  }
+}
+
+.animate-reveal {
+  animation: reveal 1.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, filter, opacity;
+}
+
 @layer utilities {
   .glass {
     background: rgba(12, 28, 46, 0.8);

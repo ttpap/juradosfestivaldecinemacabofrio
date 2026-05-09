@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Trophy, RefreshCw, ArrowLeft } from 'lucide-react'
+import { RevealText } from '@/components/RevealText'
 
 type FilmResult = { id: string; title: string; category: string; votes: number }
 type Data = { festival: { name: string; year: number; voting_open: boolean; results_revealed: boolean } | null; films: FilmResult[]; total: number }
@@ -110,11 +111,13 @@ export default function PlacarPage() {
                     {i < 3 ? MEDAL[i] : <span className="text-ocean-500 text-sm font-mono">{i + 1}</span>}
                   </span>
                   <div className="flex-1 min-w-0">
-                    <p
-                      className={`font-semibold truncate ${isLeader ? 'text-gold-300' : 'text-white'} ${!revealed ? 'select-none blur-md' : ''}`}
-                      aria-hidden={!revealed}
-                    >
-                      {revealed ? film.title : '████████████████'}
+                    <p className={`font-semibold truncate ${isLeader ? 'text-gold-300' : 'text-white'}`}>
+                      <RevealText
+                        revealed={revealed}
+                        filmId={film.id}
+                        title={film.title}
+                        blockChars="████████████████"
+                      />
                     </p>
                     {film.category && (
                       <span className={`text-xs font-medium ${CATEGORY_COLOR[film.category] ?? 'text-ocean-400'}`}>
