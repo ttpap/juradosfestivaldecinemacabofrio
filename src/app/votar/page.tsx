@@ -50,6 +50,14 @@ export default function VotarPage() {
       setLoading(false)
     }
     load()
+
+    // Detect bfcache restore (browser back/forward) and force full reload
+    // so voting_open / vote state is always fresh after admin toggle.
+    const onPageShow = (e: PageTransitionEvent) => {
+      if (e.persisted) window.location.reload()
+    }
+    window.addEventListener('pageshow', onPageShow)
+    return () => window.removeEventListener('pageshow', onPageShow)
   }, [])
 
   const isChanging = previousFilm !== null

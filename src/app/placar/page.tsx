@@ -34,7 +34,14 @@ export default function PlacarPage() {
   useEffect(() => {
     fetch_()
     const interval = setInterval(() => fetch_(), 30_000)
-    return () => clearInterval(interval)
+    const onPageShow = (e: PageTransitionEvent) => {
+      if (e.persisted) fetch_()
+    }
+    window.addEventListener('pageshow', onPageShow)
+    return () => {
+      clearInterval(interval)
+      window.removeEventListener('pageshow', onPageShow)
+    }
   }, [fetch_])
 
   const maxVotes = data?.films[0]?.votes ?? 1
