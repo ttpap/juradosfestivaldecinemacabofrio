@@ -2,92 +2,60 @@
 
 export const dynamic = 'force-dynamic'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { ArrowLeft, Send, LogIn, User } from 'lucide-react'
-
+import { ArrowLeft, Film, CheckCircle2, Vote } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
-import { Select } from '@/components/ui/Select'
-import { Textarea } from '@/components/ui/Textarea'
-import { StarRating } from '@/components/StarRating'
 import { Toast } from '@/components/ui/Toast'
-import { PageLoader } from '@/components/LoadingSpinner'
-import type { Film, Festival } from '@/types'
+import { LoadingSpinner } from '@/components/LoadingSpinner'
+import type { Film as FilmType, Festival } from '@/types'
 
 const schema = z.object({
-  voter_name: z.string().min(3, 'Nome deve ter ao menos 3 caracteres'),
+  voter_name:  z.string().min(2, 'Nome muito curto'),
   voter_email: z.string().email('E-mail inválido'),
-  film_id: z.string().min(1, 'Selecione um filme'),
-  rating: z.number().min(1, 'Dê pelo menos 1 estrela').max(5),
-  comment: z.string().optional(),
 })
-
 type FormData = z.infer<typeof schema>
 
 export default function VotarPage() {
   const router = useRouter()
   const supabase = createClient()
 
-  const [films, setFilms] = useState<Film[]>([])
   const [festival, setFestival] = useState<Festival | null>(null)
+  const [films, setFilms] = useState<FilmType[]>([])
+  const [selectedFilm, setSelectedFilm] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
-  const [rating, setRating] = useState(0)
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null)
-  const [googleUser, setGoogleUser] = useState<{ name: string; email: string } | null>(null)
-  const [loginMode, setLoginMode] = useState<'guest' | 'google' | null>(null)
 
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    formState: { errors },
-  } = useForm<FormData>({ resolver: zodResolver(schema) })
+  const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
+    resolver: zodResolver(schema),
+  })
 
-  const loadData = useCallback(async () => {
-    const [{ data: fest }, { data: filmList }, { data: { user } }] = await Promise.all([
-      supabase.from('festivals').select('*').order('created_at', { ascending: false }).limit(1).single(),
-      supabase.from('films').select('*').eq('is_active', true).order('order_index'),
-      supabase.auth.getUser(),
-    ])
+  useEffect(() => {
+    async function load() {
+      const { data: fest } = await supabase
+        .from('festivals').select('*').order('created_at', { ascending: false }).limit(1).single()
+      if (!fest) { setLoading(false); return }
+      setFestival(fest)
 
-    setFestival(fest)
-    setFilms(filmList || [])
-
-    if (user) {
-      const name = user.user_metadata?.full_name || user.email?.split('@')[0] || ''
-      const email = user.email || ''
-      setGoogleUser({ name, email })
-      setValue('voter_name', name)
-      setValue('voter_email', email)
-      setLoginMode('google')
+      const { data: f } = await supabase
+        .from('films').select('*').eq('festival_id', fest.id).eq('active', true).order('title')
+      setFilms(f ?? [])
+      setLoading(false)
     }
-
-    setLoading(false)
-  }, [supabase, setValue])
-
-  useEffect(() => { loadData() }, [loadData])
-
-  const handleGoogleLogin = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback?next=/votar`,
-      },
-    })
-    if (error) setToast({ message: 'Erro ao conectar com Google.', type: 'error' })
-  }
+    load()
+  }, [])
 
   const onSubmit = async (data: FormData) => {
-    if (rating === 0) {
-      setToast({ message: 'Por favor, dê uma nota em estrelas.', type: 'error' })
+    if (!selectedFilm) {
+      setToast({ message: 'Selecione um filme para votar.', type: 'error' })
       return
     }
     setSubmitting(true)
@@ -95,178 +63,116 @@ export default function VotarPage() {
       const res = await fetch('/api/votes/popular', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...data, rating }),
+        body: JSON.stringify({ film_id: selectedFilm, ...data }),
       })
       const json = await res.json()
       if (!res.ok) {
-        setToast({ message: json.error || 'Erro ao registrar voto.', type: 'error' })
-      } else {
-        router.push('/votar/confirmacao')
+        setToast({ message: json.error ?? 'Erro ao registrar voto.', type: 'error' })
+        return
       }
-    } catch {
-      setToast({ message: 'Erro de conexão. Tente novamente.', type: 'error' })
+      router.push('/votar/confirmacao')
     } finally {
       setSubmitting(false)
     }
   }
 
-  if (loading) return <PageLoader />
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-ocean-950 flex items-center justify-center">
+        <LoadingSpinner size="lg" />
+      </div>
+    )
+  }
 
   if (!festival?.voting_open) {
     return (
-      <main className="min-h-screen bg-ocean-950 flex flex-col items-center justify-center px-4 py-12">
-        <Image src="/logo.png" alt="FINCCA" width={240} height={130} className="object-contain mb-8" />
-        <div className="max-w-md w-full text-center rounded-2xl border border-ocean-500 bg-ocean-800 p-8">
-          <div className="text-4xl mb-4">🎬</div>
-          <h2 className="text-xl font-bold text-white mb-2">Votação não está aberta</h2>
-          <p className="text-[#94a3b8] mb-6">
-            A votação do Júri Popular ainda não foi iniciada. Fique de olho!
-          </p>
-          <Link href="/">
-            <Button variant="ghost">← Voltar ao início</Button>
-          </Link>
-        </div>
+      <main className="min-h-screen bg-ocean-950 flex flex-col items-center justify-center px-4 text-center">
+        <Image src="/logo.png" alt="FINCCA" width={120} height={65} className="object-contain mb-8" />
+        <h1 className="text-2xl font-bold text-white mb-3">Votação encerrada</h1>
+        <p className="text-ocean-400 mb-8">A votação do júri popular não está aberta no momento.</p>
+        <Link href="/" className="text-gold-400 hover:text-gold-300 flex items-center gap-2 text-sm">
+          <ArrowLeft className="w-4 h-4" /> Voltar
+        </Link>
       </main>
     )
   }
 
   return (
-    <main className="min-h-screen bg-ocean-950 px-4 py-8">
-      <div className="max-w-lg mx-auto animate-fade-in">
-        {/* Header */}
-        <div className="flex items-center gap-4 mb-8">
-          <Link href="/" className="text-[#64748b] hover:text-white transition-colors">
+    <main className="min-h-screen bg-ocean-950 pb-20">
+      {/* Header */}
+      <header className="border-b border-ocean-800 bg-ocean-900/80 backdrop-blur sticky top-0 z-10">
+        <div className="max-w-3xl mx-auto px-4 py-4 flex items-center gap-4">
+          <Link href="/" className="text-ocean-400 hover:text-white transition-colors">
             <ArrowLeft className="w-5 h-5" />
           </Link>
-          <Image src="/logo.png" alt="FINCCA" width={120} height={65} className="object-contain" />
+          <Image src="/logo.png" alt="FINCCA" width={90} height={49} className="object-contain" />
+          <span className="text-ocean-400 text-sm ml-auto">Júri Popular</span>
         </div>
+      </header>
 
-        <h1 className="text-2xl font-bold text-white mb-1">Júri Popular</h1>
-        <p className="text-[#94a3b8] text-sm mb-6">
-          Avalie o filme que você assistiu. Cada e-mail pode votar uma vez por filme.
-        </p>
+      <div className="max-w-3xl mx-auto px-4 py-8">
+        <h1 className="text-2xl font-bold text-white mb-1">Vote no melhor filme</h1>
+        <p className="text-ocean-400 text-sm mb-8">Escolha 1 filme e preencha seus dados. Um voto por pessoa.</p>
 
-        {/* Opções de acesso */}
-        {loginMode === null && (
-          <div className="rounded-2xl border border-ocean-500 bg-ocean-800 p-6 mb-6 animate-slide-up">
-            <p className="text-sm font-medium text-[#94a3b8] mb-4">Como quer participar?</p>
-            <div className="flex flex-col gap-3">
-              <button
-                onClick={handleGoogleLogin}
-                className="flex items-center gap-3 rounded-xl border border-ocean-500 bg-ocean-700 px-4 py-3 text-sm font-medium text-white hover:border-primary-500/60 hover:bg-ocean-600 transition-all"
-              >
-                <svg className="w-5 h-5" viewBox="0 0 24 24">
-                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
-                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-                </svg>
-                Entrar com Google
-                <LogIn className="w-4 h-4 ml-auto text-[#64748b]" />
-              </button>
-              <button
-                onClick={() => setLoginMode('guest')}
-                className="flex items-center gap-3 rounded-xl border border-ocean-500 bg-ocean-700 px-4 py-3 text-sm font-medium text-white hover:border-primary-500/60 hover:bg-ocean-600 transition-all"
-              >
-                <User className="w-5 h-5 text-primary-400" />
-                Votar como visitante
-                <span className="ml-auto text-xs text-[#64748b]">Preencher nome e e-mail</span>
-              </button>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+          {/* Film selection */}
+          <div>
+            <h2 className="text-sm font-semibold text-ocean-300 uppercase tracking-wide mb-4 flex items-center gap-2">
+              <Film className="w-4 h-4 text-gold-400" />
+              Selecione o filme
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {films.map(film => {
+                const selected = selectedFilm === film.id
+                return (
+                  <button key={film.id} type="button" onClick={() => setSelectedFilm(film.id)}
+                    className={`text-left rounded-2xl border p-4 transition-all ${
+                      selected
+                        ? 'border-gold-500 bg-gold-500/10 shadow-lg shadow-gold-500/10'
+                        : 'border-ocean-700 bg-ocean-800/60 hover:border-ocean-500'
+                    }`}>
+                    <div className="flex items-start gap-3">
+                      {film.thumbnail_url ? (
+                        <img src={film.thumbnail_url} alt={film.title}
+                          className="w-14 h-14 rounded-xl object-cover flex-shrink-0" />
+                      ) : (
+                        <div className="w-14 h-14 rounded-xl bg-ocean-700 flex items-center justify-center flex-shrink-0">
+                          <Film className="w-6 h-6 text-ocean-500" />
+                        </div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        {film.category && (
+                          <span className="text-xs text-gold-400 font-medium">{film.category}</span>
+                        )}
+                        <p className="font-semibold text-white leading-snug truncate">{film.title}</p>
+                        <p className="text-xs text-ocean-400 mt-0.5">Dir. {film.director}</p>
+                      </div>
+                      {selected && <CheckCircle2 className="w-5 h-5 text-gold-400 flex-shrink-0 mt-0.5" />}
+                    </div>
+                  </button>
+                )
+              })}
             </div>
           </div>
-        )}
 
-        {/* Formulário */}
-        {(loginMode !== null) && (
-          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5 animate-slide-up">
-            {/* Dados do votante */}
-            {loginMode === 'google' && googleUser ? (
-              <div className="rounded-xl border border-primary-500/30 bg-primary-500/10 px-4 py-3 flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full bg-primary-500/20 flex items-center justify-center text-primary-400 font-bold text-sm">
-                  {googleUser.name.charAt(0).toUpperCase()}
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-white">{googleUser.name}</p>
-                  <p className="text-xs text-[#64748b]">{googleUser.email}</p>
-                </div>
-              </div>
-            ) : (
-              <div className="rounded-2xl border border-ocean-500 bg-ocean-800 p-5 flex flex-col gap-4">
-                <Input
-                  label="Seu nome completo"
-                  placeholder="Maria da Silva"
-                  error={errors.voter_name?.message}
-                  {...register('voter_name')}
-                />
-                <Input
-                  label="Seu e-mail"
-                  type="email"
-                  placeholder="maria@email.com"
-                  hint="Usado para garantir que cada pessoa vote uma vez por filme"
-                  error={errors.voter_email?.message}
-                  {...register('voter_email')}
-                />
-              </div>
-            )}
+          {/* Voter info */}
+          <div className="rounded-2xl border border-ocean-700 bg-ocean-800/60 p-6 space-y-4">
+            <h2 className="text-sm font-semibold text-ocean-300 uppercase tracking-wide">Seus dados</h2>
+            <Input label="Nome completo" placeholder="Seu nome"
+              error={errors.voter_name?.message} {...register('voter_name')} />
+            <Input label="E-mail" type="email" placeholder="seu@email.com"
+              error={errors.voter_email?.message} {...register('voter_email')} />
+            <p className="text-xs text-ocean-500">Seu e-mail garante 1 voto por pessoa. Não será divulgado.</p>
+          </div>
 
-            {/* Seleção de filme */}
-            <div className="rounded-2xl border border-ocean-500 bg-ocean-800 p-5 flex flex-col gap-4">
-              <Select
-                label="Filme avaliado"
-                placeholder="Selecione o filme..."
-                options={films.map((f) => ({
-                  value: f.id,
-                  label: `${f.title} — ${f.director}`,
-                }))}
-                error={errors.film_id?.message}
-                {...register('film_id')}
-              />
-
-              {/* Estrelas */}
-              <div className="flex flex-col gap-2">
-                <label className="text-sm font-medium text-[#94a3b8]">
-                  Sua avaliação
-                </label>
-                <StarRating value={rating} onChange={setRating} size="lg" />
-                {errors.rating && (
-                  <p className="text-xs text-red-400">{errors.rating.message}</p>
-                )}
-                {rating > 0 && (
-                  <p className="text-xs text-[#64748b]">
-                    {['', 'Ruim', 'Regular', 'Bom', 'Ótimo', 'Excelente!'][rating]}
-                  </p>
-                )}
-              </div>
-
-              <Textarea
-                label="Comentário (opcional)"
-                placeholder="O que você achou do filme?"
-                rows={3}
-                {...register('comment')}
-              />
-            </div>
-
-            <Button type="submit" size="lg" loading={submitting} className="w-full">
-              <Send className="w-4 h-4" />
-              Enviar meu voto
-            </Button>
-
-            {loginMode === 'guest' && (
-              <button
-                type="button"
-                onClick={() => setLoginMode(null)}
-                className="text-sm text-[#64748b] hover:text-white transition-colors text-center"
-              >
-                ← Voltar às opções de acesso
-              </button>
-            )}
-          </form>
-        )}
+          <Button type="submit" variant="gold" size="lg" loading={submitting} className="w-full">
+            <Vote className="w-4 h-4" />
+            Registrar voto
+          </Button>
+        </form>
       </div>
 
-      {toast && (
-        <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />
-      )}
+      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
     </main>
   )
 }

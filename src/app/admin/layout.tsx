@@ -1,14 +1,10 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import { LayoutDashboard, Film, Users, Award, BarChart3, FileText } from 'lucide-react'
+import { LayoutDashboard, Film } from 'lucide-react'
 
 const navItems = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/admin/filmes', label: 'Filmes', icon: Film },
-  { href: '/admin/jurados', label: 'Jurados', icon: Users },
-  { href: '/admin/categorias', label: 'Categorias', icon: Award },
-  { href: '/admin/resultados', label: 'Resultados', icon: BarChart3 },
-  { href: '/admin/relatorios', label: 'Relatórios', icon: FileText },
 ]
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
