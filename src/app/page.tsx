@@ -6,8 +6,6 @@ import { Film, Vote, Trophy, Users } from 'lucide-react'
 import { createClient } from '@supabase/supabase-js'
 import { QRButton } from '@/components/QRButton'
 
-export const dynamic = 'force-dynamic'
-
 const MEDAL = ['🥇', '🥈', '🥉']
 
 export default async function HomePage() {
