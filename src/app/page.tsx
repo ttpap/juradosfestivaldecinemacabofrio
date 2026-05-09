@@ -67,64 +67,64 @@ export default async function HomePage() {
         </div>
       </header>
 
-      <div className="max-w-5xl mx-auto px-4 py-10">
+      <div className="max-w-5xl mx-auto px-4 py-5 sm:py-10">
 
-        {/* Hero */}
-        <div className="text-center mb-10">
-          <p className="text-gold-400 text-sm font-semibold tracking-widest uppercase mb-3">
+        {/* Hero — compact on mobile so live placar is visible above fold */}
+        <div className="text-center mb-5 sm:mb-10">
+          <p className="text-gold-400 text-xs sm:text-sm font-semibold tracking-widest uppercase mb-2">
             {festival?.year ?? '2026'}
           </p>
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight">
+          <h1 className="text-xl sm:text-3xl md:text-5xl font-bold mb-2 sm:mb-4 leading-tight">
             1º Festival Internacional de<br />Cinema de Cabo Frio
           </h1>
-          <p className="text-ocean-300 text-lg max-w-xl mx-auto">
-            Vote no seu filme favorito e ajude a escolher o grande vencedor do júri popular.
+          <p className="text-ocean-300 text-sm sm:text-lg max-w-xl mx-auto">
+            Vote no seu filme favorito e ajude a escolher o vencedor do júri popular.
           </p>
           {festival?.voting_open ? (
             <Link href="/cadastro"
-              className="inline-flex items-center gap-2 mt-8 rounded-2xl bg-gold-500 px-8 py-4 text-base font-bold text-ocean-950 hover:bg-gold-400 transition-colors shadow-lg shadow-gold-500/20">
-              <Vote className="w-5 h-5" />
+              className="inline-flex items-center gap-2 mt-4 sm:mt-8 rounded-2xl bg-gold-500 px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base font-bold text-ocean-950 hover:bg-gold-400 transition-colors shadow-lg shadow-gold-500/20">
+              <Vote className="w-4 h-4 sm:w-5 sm:h-5" />
               Quero votar
             </Link>
           ) : (
-            <div className="mt-8 inline-block rounded-2xl border border-ocean-700 bg-ocean-800/50 px-8 py-4 text-sm text-ocean-400">
+            <div className="mt-4 sm:mt-8 inline-block rounded-2xl border border-ocean-700 bg-ocean-800/50 px-6 sm:px-8 py-3 sm:py-4 text-xs sm:text-sm text-ocean-400">
               Votação encerrada
             </div>
           )}
-          <div className="mt-4 flex justify-center">
+          <div className="mt-3 sm:mt-4 flex justify-center">
             <QRButton
               path="/cadastro"
-              label="Compartilhar votação via QR"
-              className="flex items-center gap-2 rounded-xl border border-ocean-700 px-5 py-2.5 text-sm text-ocean-400 hover:border-gold-500/50 hover:text-gold-400 transition-colors"
+              label="Compartilhar via QR"
+              className="flex items-center gap-2 rounded-xl border border-ocean-700 px-4 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm text-ocean-400 hover:border-gold-500/50 hover:text-gold-400 transition-colors"
             />
           </div>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-2 gap-4 mb-10">
-          <div className="rounded-2xl border border-ocean-700 bg-ocean-800/60 p-5 flex items-center gap-4">
-            <div className="w-10 h-10 rounded-xl bg-gold-500/10 flex items-center justify-center">
-              <Users className="w-5 h-5 text-gold-400" />
+        {/* Stats — compact on mobile */}
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-5 sm:mb-10">
+          <div className="rounded-2xl border border-ocean-700 bg-ocean-800/60 p-3 sm:p-5 flex items-center gap-3 sm:gap-4">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gold-500/10 flex items-center justify-center flex-shrink-0">
+              <Users className="w-4 h-4 sm:w-5 sm:h-5 text-gold-400" />
             </div>
-            <div>
-              <p className="text-2xl font-bold text-white">{totalVotes}</p>
-              <p className="text-xs text-ocean-400">votos registrados</p>
+            <div className="min-w-0">
+              <p className="text-xl sm:text-2xl font-bold text-white">{totalVotes}</p>
+              <p className="text-[11px] sm:text-xs text-ocean-400">votos registrados</p>
             </div>
           </div>
-          <div className="rounded-2xl border border-ocean-700 bg-ocean-800/60 p-5 flex items-center gap-4">
-            <div className="w-10 h-10 rounded-xl bg-ocean-700 flex items-center justify-center">
-              <Film className="w-5 h-5 text-ocean-300" />
+          <div className="rounded-2xl border border-ocean-700 bg-ocean-800/60 p-3 sm:p-5 flex items-center gap-3 sm:gap-4">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-ocean-700 flex items-center justify-center flex-shrink-0">
+              <Film className="w-4 h-4 sm:w-5 sm:h-5 text-ocean-300" />
             </div>
-            <div>
-              <p className="text-2xl font-bold text-white">{films?.length ?? 0}</p>
-              <p className="text-xs text-ocean-400">filmes em competição</p>
+            <div className="min-w-0">
+              <p className="text-xl sm:text-2xl font-bold text-white">{films?.length ?? 0}</p>
+              <p className="text-[11px] sm:text-xs text-ocean-400">filmes em competição</p>
             </div>
           </div>
         </div>
 
         {/* Placar ao vivo */}
         <section className="mb-14">
-          <div className="flex items-center gap-2 mb-5">
+          <div className="flex items-center gap-2 mb-3 sm:mb-5">
             <Trophy className="w-5 h-5 text-gold-400" />
             <h2 className="text-lg font-semibold text-white">Placar ao vivo</h2>
             <span className="ml-auto text-xs text-ocean-500">
