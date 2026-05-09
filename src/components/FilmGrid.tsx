@@ -20,9 +20,11 @@ export function FilmGrid({ films }: { films: Film[] }) {
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setActive(null) }
     document.addEventListener('keydown', onKey)
     document.body.style.overflow = 'hidden'
+    document.body.dataset.modalOpen = 'true'
     return () => {
       document.removeEventListener('keydown', onKey)
       document.body.style.overflow = ''
+      delete document.body.dataset.modalOpen
     }
   }, [active])
 

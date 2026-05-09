@@ -7,6 +7,7 @@ import { createClient } from '@supabase/supabase-js'
 import { QRButton } from '@/components/QRButton'
 import { RevealText } from '@/components/RevealText'
 import { FilmGrid } from '@/components/FilmGrid'
+import { AutoRefresh } from '@/components/AutoRefresh'
 import { getResultsRevealed } from '@/lib/festival-settings'
 
 const MEDAL = ['🥇', '🥈', '🥉']
@@ -49,8 +50,8 @@ export default async function HomePage() {
 
   return (
     <main className="min-h-screen bg-ocean-950 text-white">
-      {/* Auto-refresh every 12s for live placar */}
-      <meta httpEquiv="refresh" content="12" />
+      {/* Auto-refresh every 12s — pauses while a modal is open */}
+      <AutoRefresh intervalMs={12000} />
       {/* Header */}
       <header className="border-b border-ocean-800 bg-ocean-900/80 backdrop-blur sticky top-0 z-10">
         <div className="max-w-5xl mx-auto px-4 py-4 flex items-center gap-3">
