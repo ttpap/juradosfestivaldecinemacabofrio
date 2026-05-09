@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic'
 import Link from 'next/link'
 import { ArrowLeft, Plus, Pencil, Film } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
+import { createClient as adminClient } from '@supabase/supabase-js'
 import { redirect } from 'next/navigation'
 
 export default async function FilmesPage() {
@@ -10,11 +11,16 @@ export default async function FilmesPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/admin/login')
 
-  const { data: festival } = await supabase
+  const admin = adminClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+
+  const { data: festival } = await admin
     .from('festivals').select('id').order('created_at', { ascending: false }).limit(1).single()
 
   const { data: films } = festival
-    ? await supabase.from('films').select('*').eq('festival_id', festival.id).order('title')
+    ? await admin.from('films').select('*').eq('festival_id', festival.id).order('title')
     : { data: [] }
 
   return (

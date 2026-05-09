@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic'
 import { Suspense, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -123,7 +123,6 @@ function CinemaBackground() {
 }
 
 function AdminLoginContent() {
-  const router = useRouter()
   const params = useSearchParams()
   const supabase = createClient()
   const [loading, setLoading] = useState(false)
@@ -136,19 +135,26 @@ function AdminLoginContent() {
   const onSubmit = async ({ email, password }: FormData) => {
     setLoading(true)
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password })
-      if (error) { setToast({ message: 'E-mail ou senha incorretos.', type: 'error' }); return }
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password })
 
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) { setToast({ message: 'Erro de autenticação.', type: 'error' }); return }
-
-      if (user.email !== 'antonpap@gmail.com') {
-        await supabase.auth.signOut()
-        setToast({ message: 'Acesso negado. Esta conta não tem permissão de administrador.', type: 'error' })
+      if (error || !data.session || !data.user) {
+        setToast({ message: 'E-mail ou senha incorretos.', type: 'error' })
+        setLoading(false)
         return
       }
-      router.push('/admin')
-    } finally {
+
+      if (data.user.email !== 'antonpap@gmail.com') {
+        await supabase.auth.signOut()
+        setToast({ message: 'Acesso negado. Esta conta não tem permissão de administrador.', type: 'error' })
+        setLoading(false)
+        return
+      }
+
+      // Full page reload — guarantees auth cookies are sent to the server
+      // before middleware reads them. router.push has race conditions on mobile/Safari.
+      window.location.href = '/admin'
+    } catch {
+      setToast({ message: 'Erro de conexão. Tente novamente.', type: 'error' })
       setLoading(false)
     }
   }

@@ -21,10 +21,18 @@ export async function middleware(request: NextRequest) {
     }
   )
 
-  const { data: { user } } = await supabase.auth.getUser()
   const { pathname } = request.nextUrl
 
+  // Only run auth check on protected /admin routes (not login itself)
   if (pathname.startsWith('/admin') && pathname !== '/admin/login') {
+    let user = null
+    try {
+      const { data } = await supabase.auth.getUser()
+      user = data.user
+    } catch {
+      // Network error talking to Supabase — treat as unauthenticated
+    }
+
     if (!user) return NextResponse.redirect(new URL('/admin/login', request.url))
     if (user.email !== 'antonpap@gmail.com')
       return NextResponse.redirect(new URL('/admin/login?error=acesso_negado', request.url))
