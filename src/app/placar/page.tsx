@@ -34,7 +34,7 @@ export default function PlacarPage() {
 
   useEffect(() => {
     fetch_()
-    const interval = setInterval(() => fetch_(), 30_000)
+    const interval = setInterval(() => fetch_(), 5_000)
     const onPageShow = (e: PageTransitionEvent) => {
       if (e.persisted) fetch_()
     }
