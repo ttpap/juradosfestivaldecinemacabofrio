@@ -41,6 +41,8 @@ const config: Config = {
       animation: {
         'fade-in': 'fadeIn 0.4s ease-in-out',
         'slide-up': 'slideUp 0.4s ease-out',
+        'float-up': 'floatUp linear infinite',
+        'twinkle': 'twinkle ease-in-out infinite',
       },
       keyframes: {
         fadeIn: {
@@ -50,6 +52,16 @@ const config: Config = {
         slideUp: {
           '0%': { opacity: '0', transform: 'translateY(20px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        floatUp: {
+          '0%': { transform: 'translateY(105vh) rotate(-6deg)', opacity: '0' },
+          '5%': { opacity: '1' },
+          '95%': { opacity: '1' },
+          '100%': { transform: 'translateY(-10vh) rotate(6deg)', opacity: '0' },
+        },
+        twinkle: {
+          '0%, 100%': { opacity: '0.08' },
+          '50%': { opacity: '0.55' },
         },
       },
     },

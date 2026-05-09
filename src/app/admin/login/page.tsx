@@ -23,6 +23,105 @@ const schema = z.object({
 })
 type FormData = z.infer<typeof schema>
 
+const FILM_PARTICLES = [
+  { size: 38, left: '4%',  duration: '14s', delay: '0s'   },
+  { size: 22, left: '13%', duration: '18s', delay: '3.5s' },
+  { size: 52, left: '24%', duration: '12s', delay: '1s'   },
+  { size: 30, left: '38%', duration: '20s', delay: '5s'   },
+  { size: 44, left: '54%', duration: '15s', delay: '2s'   },
+  { size: 18, left: '67%', duration: '17s', delay: '7s'   },
+  { size: 58, left: '78%', duration: '11s', delay: '0.5s' },
+  { size: 26, left: '89%', duration: '16s', delay: '4s'   },
+  { size: 34, left: '95%', duration: '19s', delay: '8s'   },
+]
+
+const STARS = [
+  { left: '8%',  top: '12%', size: 3, delay: '0s',    dur: '3.2s' },
+  { left: '22%', top: '78%', size: 2, delay: '1.1s',  dur: '2.8s' },
+  { left: '35%', top: '35%', size: 2, delay: '0.6s',  dur: '4s'   },
+  { left: '48%', top: '65%', size: 3, delay: '2s',    dur: '3s'   },
+  { left: '60%', top: '20%', size: 2, delay: '1.5s',  dur: '2.5s' },
+  { left: '73%', top: '50%', size: 3, delay: '0.3s',  dur: '3.8s' },
+  { left: '82%', top: '85%', size: 2, delay: '2.4s',  dur: '2.9s' },
+  { left: '91%', top: '40%', size: 2, delay: '0.9s',  dur: '3.5s' },
+  { left: '16%', top: '55%', size: 3, delay: '3s',    dur: '2.7s' },
+  { left: '55%', top: '88%', size: 2, delay: '1.8s',  dur: '4.2s' },
+]
+
+function FilmFrame({ size }: { size: number }) {
+  const holeSize = Math.max(4, Math.round(size * 0.12))
+  const holePad = Math.round(size * 0.08)
+  return (
+    <svg
+      width={size}
+      height={Math.round(size * 1.42)}
+      viewBox="0 0 100 142"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      {/* Outer border */}
+      <rect x="1" y="1" width="98" height="140" rx="4" stroke="white" strokeOpacity="0.35" strokeWidth="2" />
+      {/* Top strip */}
+      <rect x="0" y="0" width="100" height="18" rx="4" fill="white" fillOpacity="0.06" />
+      {/* Bottom strip */}
+      <rect x="0" y="124" width="100" height="18" rx="4" fill="white" fillOpacity="0.06" />
+      {/* Top sprocket holes */}
+      {[16, 36, 56, 76].map(cx => (
+        <rect key={cx} x={cx - 7} y="4" width="14" height="10" rx="2" fill="black" fillOpacity="0.5" stroke="white" strokeOpacity="0.2" strokeWidth="1" />
+      ))}
+      {/* Bottom sprocket holes */}
+      {[16, 36, 56, 76].map(cx => (
+        <rect key={cx} x={cx - 7} y="128" width="14" height="10" rx="2" fill="black" fillOpacity="0.5" stroke="white" strokeOpacity="0.2" strokeWidth="1" />
+      ))}
+      {/* Image area */}
+      <rect x="8" y="22" width="84" height="98" rx="2" fill="white" fillOpacity="0.03" stroke="white" strokeOpacity="0.1" strokeWidth="1" />
+    </svg>
+  )
+}
+
+function CinemaBackground() {
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none select-none" aria-hidden="true">
+      {/* Radial spotlight from center */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background: 'radial-gradient(ellipse 70% 60% at 50% 40%, rgba(18,37,64,0.5) 0%, transparent 70%)',
+        }}
+      />
+
+      {/* Floating film frames */}
+      {FILM_PARTICLES.map((p, i) => (
+        <div
+          key={i}
+          className="absolute bottom-[-10%]"
+          style={{
+            left: p.left,
+            animation: `floatUp ${p.duration} ${p.delay} infinite linear`,
+          }}
+        >
+          <FilmFrame size={p.size} />
+        </div>
+      ))}
+
+      {/* Star particles */}
+      {STARS.map((s, i) => (
+        <div
+          key={i}
+          className="absolute rounded-full bg-gold-400"
+          style={{
+            width: s.size,
+            height: s.size,
+            left: s.left,
+            top: s.top,
+            animation: `twinkle ${s.dur} ${s.delay} infinite ease-in-out`,
+          }}
+        />
+      ))}
+    </div>
+  )
+}
+
 function AdminLoginContent() {
   const router = useRouter()
   const params = useSearchParams()
@@ -58,23 +157,43 @@ function AdminLoginContent() {
   }
 
   return (
-    <main className="min-h-screen bg-ocean-950 flex flex-col items-center justify-center px-4 py-12 animate-fade-in">
-      <div className="max-w-sm w-full">
-        <div className="flex items-center gap-4 mb-8">
-          <Link href="/" className="text-[#64748b] hover:text-white transition-colors">
-            <ArrowLeft className="w-5 h-5" />
-          </Link>
-          <Image src="/logo.png" alt="FINCCA" width={120} height={65} className="object-contain" />
+    <main className="relative min-h-[100dvh] bg-ocean-950 flex flex-col items-center justify-center px-4 py-10 overflow-hidden">
+      <CinemaBackground />
+
+      <div className="relative z-10 w-full max-w-sm animate-fade-in">
+        {/* Back link */}
+        <Link
+          href="/"
+          className="inline-flex items-center gap-1.5 text-sm text-ocean-400 hover:text-white transition-colors mb-8 group"
+        >
+          <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
+          Voltar ao início
+        </Link>
+
+        {/* Logo — centralizado e maior */}
+        <div className="flex flex-col items-center mb-8">
+          <Image
+            src="/logo.png"
+            alt="FINCCA"
+            width={200}
+            height={108}
+            className="object-contain drop-shadow-[0_0_32px_rgba(240,192,96,0.15)]"
+            priority
+          />
+          <p className="mt-3 text-ocean-400 text-sm text-center tracking-wide">
+            Festival Internacional de Cinema de Cabo Frio
+          </p>
         </div>
 
-        <div className="rounded-2xl border border-ocean-500 bg-ocean-800 p-7 shadow-2xl">
+        {/* Card */}
+        <div className="rounded-2xl border border-ocean-700 bg-ocean-900/80 backdrop-blur-md p-6 shadow-2xl shadow-black/50">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-xl bg-ocean-700 border border-ocean-500 flex items-center justify-center">
-              <ShieldCheck className="w-5 h-5 text-[#64748b]" />
+            <div className="w-11 h-11 rounded-xl bg-ocean-800 border border-ocean-600 flex items-center justify-center flex-shrink-0">
+              <ShieldCheck className="w-5 h-5 text-ocean-400" />
             </div>
             <div>
-              <h1 className="text-lg font-bold text-white">Painel Administrativo</h1>
-              <p className="text-xs text-[#64748b]">Acesso restrito à organização</p>
+              <h1 className="text-base font-bold text-white leading-tight">Painel Administrativo</h1>
+              <p className="text-xs text-ocean-400 mt-0.5">Acesso restrito à organização</p>
             </div>
           </div>
 
@@ -85,16 +204,35 @@ function AdminLoginContent() {
           )}
 
           <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-            <Input label="E-mail" type="email" placeholder="admin@fincca.com"
-              error={errors.email?.message} {...register('email')} />
-            <Input label="Senha" type="password" placeholder="••••••••"
-              error={errors.password?.message} {...register('password')} />
-            <Button type="submit" variant="secondary" size="lg" loading={loading} className="w-full mt-2">
+            <Input
+              label="E-mail"
+              type="email"
+              placeholder="admin@fincca.com"
+              autoComplete="email"
+              error={errors.email?.message}
+              {...register('email')}
+            />
+            <Input
+              label="Senha"
+              type="password"
+              placeholder="••••••••"
+              autoComplete="current-password"
+              error={errors.password?.message}
+              {...register('password')}
+            />
+            <Button
+              type="submit"
+              variant="secondary"
+              size="lg"
+              loading={loading}
+              className="w-full mt-2 min-h-[52px] text-base"
+            >
               Entrar no painel
             </Button>
           </form>
         </div>
       </div>
+
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
     </main>
   )
@@ -103,7 +241,7 @@ function AdminLoginContent() {
 export default function AdminLoginPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-ocean-950 flex items-center justify-center">
+      <div className="min-h-[100dvh] bg-ocean-950 flex items-center justify-center">
         <LoadingSpinner size="lg" />
       </div>
     }>
