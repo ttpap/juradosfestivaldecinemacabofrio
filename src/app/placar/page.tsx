@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import Image from 'next/image'
-import { Trophy, RefreshCw } from 'lucide-react'
+import Link from 'next/link'
+import { Trophy, RefreshCw, ArrowLeft } from 'lucide-react'
 
 type FilmResult = { id: string; title: string; category: string; votes: number }
 type Data = { festival: { name: string; year: number; voting_open: boolean } | null; films: FilmResult[]; total: number }
@@ -50,17 +51,25 @@ export default function PlacarPage() {
     <main className="min-h-screen bg-ocean-950 text-white">
       <header className="border-b border-ocean-800 bg-ocean-900/80 backdrop-blur sticky top-0 z-10">
         <div className="max-w-3xl mx-auto px-4 py-4 flex items-center gap-3">
+          <Link
+            href="/admin"
+            className="p-2 -ml-2 rounded-xl text-ocean-400 hover:text-white hover:bg-ocean-800 transition-colors"
+            aria-label="Voltar ao dashboard"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </Link>
           <Image src="/logo.png" alt="FINCCA" width={90} height={49} className="object-contain" />
-          <div className="flex-1">
+          <div className="flex-1 min-w-0">
             <h1 className="font-bold text-white text-sm">Placar ao Vivo</h1>
-            <p className="text-xs text-ocean-500">
+            <p className="text-xs text-ocean-500 truncate">
               {data?.festival?.voting_open ? '🟢 Votação aberta' : '🔴 Votação encerrada'}
-              {lastUpdate && ` · Atualizado às ${lastUpdate.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}`}
+              {lastUpdate && ` · ${lastUpdate.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}`}
             </p>
           </div>
           <button
             onClick={() => fetch_(true)}
             className="p-2 rounded-xl text-ocean-400 hover:text-white hover:bg-ocean-800 transition-colors"
+            aria-label="Atualizar"
           >
             <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
           </button>
