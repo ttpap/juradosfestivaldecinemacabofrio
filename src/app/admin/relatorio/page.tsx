@@ -155,31 +155,31 @@ export default async function RelatorioPage() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-ocean-700 bg-ocean-800/80">
-                    <th className="text-left px-4 py-3 text-xs font-semibold text-ocean-400 uppercase tracking-wide w-10">#</th>
-                    <th className="text-left px-4 py-3 text-xs font-semibold text-ocean-400 uppercase tracking-wide">Nome</th>
-                    <th className="text-left px-4 py-3 text-xs font-semibold text-ocean-400 uppercase tracking-wide">E-mail</th>
-                    <th className="text-left px-4 py-3 text-xs font-semibold text-ocean-400 uppercase tracking-wide">Filme votado</th>
-                    <th className="text-left px-4 py-3 text-xs font-semibold text-ocean-400 uppercase tracking-wide">Categoria</th>
-                    <th className="text-left px-4 py-3 text-xs font-semibold text-ocean-400 uppercase tracking-wide">Data/hora</th>
-                    {isAdmin && <th className="px-4 py-3 w-16 no-print" />}
+                    <th className="hidden sm:table-cell text-left px-3 py-3 text-xs font-semibold text-ocean-400 uppercase tracking-wide w-10">#</th>
+                    <th className="text-left px-3 py-3 text-xs font-semibold text-ocean-400 uppercase tracking-wide">Nome</th>
+                    <th className="hidden md:table-cell text-left px-3 py-3 text-xs font-semibold text-ocean-400 uppercase tracking-wide">E-mail</th>
+                    <th className="text-left px-3 py-3 text-xs font-semibold text-ocean-400 uppercase tracking-wide">Filme</th>
+                    <th className="hidden sm:table-cell text-left px-3 py-3 text-xs font-semibold text-ocean-400 uppercase tracking-wide">Categoria</th>
+                    <th className="hidden sm:table-cell text-left px-3 py-3 text-xs font-semibold text-ocean-400 uppercase tracking-wide">Data/hora</th>
+                    {isAdmin && <th className="px-3 py-3 w-14 no-print" />}
                   </tr>
                 </thead>
                 <tbody>
                   {rows.map((row, i) => (
                     <tr key={`${row.voter_email}-${i}`}
                       className={`border-b border-ocean-800 ${i % 2 === 0 ? 'bg-ocean-900/40' : 'bg-ocean-800/20'} hover:bg-ocean-700/30 transition-colors`}>
-                      <td className="px-4 py-3 text-ocean-500 text-xs">{i + 1}</td>
-                      <td className="px-4 py-3 font-medium text-white">{row.voter_name}</td>
-                      <td className="px-4 py-3 text-ocean-300 text-xs">{row.voter_email}</td>
-                      <td className="px-4 py-3 font-semibold text-gold-400">{row.film?.title ?? '—'}</td>
-                      <td className="px-4 py-3 text-ocean-400 text-xs">{row.film?.category ?? '—'}</td>
-                      <td className="px-4 py-3 text-ocean-500 text-xs">
+                      <td className="hidden sm:table-cell px-3 py-3 text-ocean-500 text-xs">{i + 1}</td>
+                      <td className="px-3 py-3 font-medium text-white text-sm">{row.voter_name}</td>
+                      <td className="hidden md:table-cell px-3 py-3 text-ocean-300 text-xs">{row.voter_email}</td>
+                      <td className="px-3 py-3 font-semibold text-gold-400 text-xs">{row.film?.title ?? '—'}</td>
+                      <td className="hidden sm:table-cell px-3 py-3 text-ocean-400 text-xs">{row.film?.category ?? '—'}</td>
+                      <td className="hidden sm:table-cell px-3 py-3 text-ocean-500 text-xs">
                         {row.created_at
                           ? new Date(row.created_at).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })
                           : '—'}
                       </td>
                       {isAdmin && (
-                        <td className="px-4 py-3 no-print">
+                        <td className="px-3 py-3 no-print">
                           <DeleteVoteButton voteId={row.id} />
                         </td>
                       )}
