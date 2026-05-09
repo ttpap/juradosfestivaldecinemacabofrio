@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
@@ -8,12 +10,11 @@ const schema = z.object({
   voter_email: z.string().email(),
 })
 
-const admin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
-
 export async function POST(request: Request) {
+  const admin = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
   const body = await request.json().catch(() => null)
   const parsed = schema.safeParse(body)
   if (!parsed.success)
@@ -57,6 +58,10 @@ export async function POST(request: Request) {
 
 // Retorna o voto atual do email (se existir)
 export async function GET(request: Request) {
+  const admin = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
   const { searchParams } = new URL(request.url)
   const email = searchParams.get('email')?.toLowerCase().trim()
   if (!email) return NextResponse.json({ vote: null })
