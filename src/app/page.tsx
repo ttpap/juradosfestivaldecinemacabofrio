@@ -22,7 +22,7 @@ export default async function HomePage() {
         <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
           <Image src="/logo.png" alt="FINCCA" width={100} height={54} className="object-contain" />
           {festival?.voting_open && (
-            <Link href="/votar"
+            <Link href="/cadastro"
               className="flex items-center gap-2 rounded-xl bg-gold-500 px-5 py-2.5 text-sm font-bold text-ocean-950 hover:bg-gold-400 transition-colors">
               <Vote className="w-4 h-4" />
               Votar agora
@@ -45,7 +45,7 @@ export default async function HomePage() {
           </p>
 
           {festival?.voting_open ? (
-            <Link href="/votar"
+            <Link href="/cadastro"
               className="inline-flex items-center gap-2 mt-8 rounded-2xl bg-gold-500 px-8 py-4 text-base font-bold text-ocean-950 hover:bg-gold-400 transition-colors shadow-lg shadow-gold-500/20">
               <Vote className="w-5 h-5" />
               Quero votar

@@ -6,22 +6,12 @@ import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
 import { ArrowLeft, Film, CheckCircle2, Vote } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/Button'
-import { Input } from '@/components/ui/Input'
 import { Toast } from '@/components/ui/Toast'
 import { LoadingSpinner } from '@/components/LoadingSpinner'
 import type { Film as FilmType, Festival } from '@/types'
-
-const schema = z.object({
-  voter_name:  z.string().min(2, 'Nome muito curto'),
-  voter_email: z.string().email('E-mail inválido'),
-})
-type FormData = z.infer<typeof schema>
 
 export default function VotarPage() {
   const router = useRouter()
@@ -33,12 +23,16 @@ export default function VotarPage() {
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null)
-
-  const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
-    resolver: zodResolver(schema),
-  })
+  const [voterName, setVoterName] = useState('')
+  const [voterEmail, setVoterEmail] = useState('')
 
   useEffect(() => {
+    const name = localStorage.getItem('voter_name') ?? ''
+    const email = localStorage.getItem('voter_email') ?? ''
+    if (!name || !email) { router.replace('/cadastro'); return }
+    setVoterName(name)
+    setVoterEmail(email)
+
     async function load() {
       const { data: fest } = await supabase
         .from('festivals').select('*').order('created_at', { ascending: false }).limit(1).single()
@@ -53,7 +47,7 @@ export default function VotarPage() {
     load()
   }, [])
 
-  const onSubmit = async (data: FormData) => {
+  const handleSubmit = async () => {
     if (!selectedFilm) {
       setToast({ message: 'Selecione um filme para votar.', type: 'error' })
       return
@@ -63,13 +57,15 @@ export default function VotarPage() {
       const res = await fetch('/api/votes/popular', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ film_id: selectedFilm, ...data }),
+        body: JSON.stringify({ film_id: selectedFilm, voter_name: voterName, voter_email: voterEmail }),
       })
       const json = await res.json()
       if (!res.ok) {
         setToast({ message: json.error ?? 'Erro ao registrar voto.', type: 'error' })
         return
       }
+      localStorage.removeItem('voter_name')
+      localStorage.removeItem('voter_email')
       router.push('/votar/confirmacao')
     } finally {
       setSubmitting(false)
@@ -114,7 +110,20 @@ export default function VotarPage() {
         <h1 className="text-2xl font-bold text-white mb-1">Vote no melhor filme</h1>
         <p className="text-ocean-400 text-sm mb-8">Escolha 1 filme e preencha seus dados. Um voto por pessoa.</p>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+        <div className="mb-6 rounded-2xl border border-ocean-700 bg-ocean-800/40 px-5 py-3 flex items-center gap-3">
+          <div className="w-8 h-8 rounded-full bg-gold-500/20 flex items-center justify-center flex-shrink-0">
+            <span className="text-gold-400 text-sm font-bold">{voterName.charAt(0).toUpperCase()}</span>
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-white text-sm font-medium truncate">{voterName}</p>
+            <p className="text-ocean-400 text-xs truncate">{voterEmail}</p>
+          </div>
+          <Link href="/cadastro" className="text-xs text-ocean-500 hover:text-ocean-300 transition-colors">
+            Alterar
+          </Link>
+        </div>
+
+        <div className="space-y-8">
           {/* Film selection */}
           <div>
             <h2 className="text-sm font-semibold text-ocean-300 uppercase tracking-wide mb-4 flex items-center gap-2">
@@ -155,21 +164,11 @@ export default function VotarPage() {
             </div>
           </div>
 
-          {/* Voter info */}
-          <div className="rounded-2xl border border-ocean-700 bg-ocean-800/60 p-6 space-y-4">
-            <h2 className="text-sm font-semibold text-ocean-300 uppercase tracking-wide">Seus dados</h2>
-            <Input label="Nome completo" placeholder="Seu nome"
-              error={errors.voter_name?.message} {...register('voter_name')} />
-            <Input label="E-mail" type="email" placeholder="seu@email.com"
-              error={errors.voter_email?.message} {...register('voter_email')} />
-            <p className="text-xs text-ocean-500">Seu e-mail garante 1 voto por pessoa. Não será divulgado.</p>
-          </div>
-
-          <Button type="submit" variant="gold" size="lg" loading={submitting} className="w-full">
+          <Button type="button" onClick={handleSubmit} variant="gold" size="lg" loading={submitting} className="w-full">
             <Vote className="w-4 h-4" />
             Registrar voto
           </Button>
-        </form>
+        </div>
       </div>
 
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
