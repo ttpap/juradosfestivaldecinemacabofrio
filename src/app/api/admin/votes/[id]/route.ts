@@ -1,8 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { createClient as adminClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
-
-const ALLOWED_EMAIL = 'antonpap@gmail.com'
+import { isAdminEmail } from '@/lib/auth/admins'
 
 export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -11,7 +10,7 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) return NextResponse.json({ error: 'Não autenticado.' }, { status: 401 })
-  if (user.email !== ALLOWED_EMAIL)
+  if (!isAdminEmail(user.email))
     return NextResponse.json({ error: 'Sem permissão.' }, { status: 403 })
 
   const admin = adminClient(

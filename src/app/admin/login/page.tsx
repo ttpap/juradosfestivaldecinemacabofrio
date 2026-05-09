@@ -12,6 +12,7 @@ import { z } from 'zod'
 import { ShieldCheck, ArrowLeft } from 'lucide-react'
 
 import { createClient } from '@/lib/supabase/client'
+import { isAdminEmail } from '@/lib/auth/admins'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Toast } from '@/components/ui/Toast'
@@ -143,7 +144,7 @@ function AdminLoginContent() {
         return
       }
 
-      if (data.user.email !== 'antonpap@gmail.com') {
+      if (!isAdminEmail(data.user.email)) {
         await supabase.auth.signOut()
         setToast({ message: 'Acesso negado. Esta conta não tem permissão de administrador.', type: 'error' })
         setLoading(false)

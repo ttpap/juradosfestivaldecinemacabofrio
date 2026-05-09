@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation'
 import Image from 'next/image'
 import { createClient } from '@/lib/supabase/server'
 import { createClient as adminClient } from '@supabase/supabase-js'
+import { isAdminEmail } from '@/lib/auth/admins'
 import { PrintButton } from '@/components/PrintButton'
 import { DeleteVoteButton } from '@/components/DeleteVoteButton'
 import { FileText } from 'lucide-react'
@@ -13,7 +14,7 @@ export default async function RelatorioPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/admin/login')
 
-  const isAdmin = user.email === 'antonpap@gmail.com'
+  const isAdmin = isAdminEmail(user.email)
 
   const admin = adminClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

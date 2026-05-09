@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { createClient as adminClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
+import { isAdminEmail } from '@/lib/auth/admins'
 
 // POST-only: state mutation must never happen via GET because Next.js
 // Link prefetch and browser preconnect can fire GET requests without
@@ -19,7 +20,7 @@ export async function POST(request: Request) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.redirect(`${origin}/admin/login`, 303)
 
-  if (user.email !== 'antonpap@gmail.com') {
+  if (!isAdminEmail(user.email)) {
     return NextResponse.redirect(`${origin}/admin/login`, 303)
   }
 

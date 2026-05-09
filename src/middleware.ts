@@ -1,5 +1,6 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { isAdminEmail } from '@/lib/auth/admins'
 
 export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request })
@@ -34,7 +35,7 @@ export async function middleware(request: NextRequest) {
     }
 
     if (!user) return NextResponse.redirect(new URL('/admin/login', request.url))
-    if (user.email !== 'antonpap@gmail.com')
+    if (!isAdminEmail(user.email))
       return NextResponse.redirect(new URL('/admin/login?error=acesso_negado', request.url))
   }
 
