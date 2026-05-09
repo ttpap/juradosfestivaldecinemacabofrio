@@ -49,8 +49,8 @@ export default async function HomePage() {
 
   return (
     <main className="min-h-screen bg-ocean-950 text-white">
-      {/* Auto-refresh every 5s for live placar */}
-      <meta httpEquiv="refresh" content="5" />
+      {/* Auto-refresh every 12s for live placar */}
+      <meta httpEquiv="refresh" content="12" />
       {/* Header */}
       <header className="border-b border-ocean-800 bg-ocean-900/80 backdrop-blur sticky top-0 z-10">
         <div className="max-w-5xl mx-auto px-4 py-4 flex items-center gap-3">

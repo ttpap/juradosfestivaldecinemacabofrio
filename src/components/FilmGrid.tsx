@@ -89,8 +89,10 @@ export function FilmGrid({ films }: { films: Film[] }) {
               {active.director && <p className="text-sm text-ocean-300 mt-1">Direção: {active.director}</p>}
               {active.synopsis && (
                 <div className="mt-5 pt-5 border-t border-ocean-700">
-                  <h3 className="text-xs font-semibold text-ocean-400 uppercase tracking-wide mb-2">Sinopse</h3>
-                  <p className="text-sm text-ocean-200 leading-relaxed whitespace-pre-line">{active.synopsis}</p>
+                  <h3 className="text-xs font-semibold text-ocean-400 uppercase tracking-wide mb-3">Sinopse</h3>
+                  <p className="text-[15px] text-ocean-100 leading-7 text-justify hyphens-auto">
+                    {active.synopsis}
+                  </p>
                 </div>
               )}
             </div>
