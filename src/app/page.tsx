@@ -40,6 +40,7 @@ export default async function HomePage() {
   const ranked = (films ?? [])
     .map(f => ({ ...f, votes: voteCounts[f.id] ?? 0 }))
     .sort((a, b) => b.votes - a.votes)
+    .slice(0, 3)
 
   const totalVotes = votes?.length ?? 0
   const totalVoters = new Set(votes?.map((v: any) => v.film_id)).size // unique films voted = proxy; actually total rows = total voters
