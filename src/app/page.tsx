@@ -50,8 +50,7 @@ export default async function HomePage() {
       <header className="border-b border-ocean-800 bg-ocean-900/80 backdrop-blur sticky top-0 z-10">
         <div className="max-w-5xl mx-auto px-4 py-4 flex items-center gap-3">
           <Image src="/logo.png" alt="FINCCA" width={100} height={54} className="object-contain" />
-          <div className="ml-auto flex items-center gap-2">
-            <QRButton path="/cadastro" label="QR Code" />
+          <div className="ml-auto flex items-center gap-3">
             <Link href="/admin/login" className="text-xs text-ocean-400 hover:text-white border border-ocean-700 rounded-lg px-3 py-1.5 transition-colors sm:flex hidden">
               Área Admin
             </Link>
@@ -90,6 +89,13 @@ export default async function HomePage() {
               Votação encerrada
             </div>
           )}
+          <div className="mt-4 flex justify-center">
+            <QRButton
+              path="/cadastro"
+              label="Compartilhar votação via QR"
+              className="flex items-center gap-2 rounded-xl border border-ocean-700 px-5 py-2.5 text-sm text-ocean-400 hover:border-gold-500/50 hover:text-gold-400 transition-colors"
+            />
+          </div>
         </div>
 
         {/* Stats */}
