@@ -26,9 +26,7 @@ export async function middleware(request: NextRequest) {
 
   if (pathname.startsWith('/admin') && pathname !== '/admin/login') {
     if (!user) return NextResponse.redirect(new URL('/admin/login', request.url))
-    const { data: profile } = await supabase
-      .from('profiles').select('role').eq('id', user.id).single()
-    if (!profile || profile.role !== 'admin')
+    if (user.email !== 'antonpap@gmail.com')
       return NextResponse.redirect(new URL('/admin/login?error=acesso_negado', request.url))
   }
 
