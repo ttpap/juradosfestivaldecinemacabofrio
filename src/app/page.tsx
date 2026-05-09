@@ -2,9 +2,10 @@ export const dynamic = 'force-dynamic'
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { Film, Vote, Trophy, Users } from 'lucide-react'
+import { Film, Vote, Trophy, Users, EyeOff } from 'lucide-react'
 import { createClient } from '@supabase/supabase-js'
 import { QRButton } from '@/components/QRButton'
+import { getResultsRevealed } from '@/lib/festival-settings'
 
 const MEDAL = ['🥇', '🥈', '🥉']
 
@@ -17,6 +18,8 @@ export default async function HomePage() {
 
   const { data: festival } = await admin
     .from('festivals').select('*').order('created_at', { ascending: false }).limit(1).single()
+
+  const resultsRevealed = festival ? await getResultsRevealed(festival.id) : false
 
   const [{ data: films }, { data: votes }] = await Promise.all([
     festival
@@ -122,8 +125,17 @@ export default async function HomePage() {
           <div className="flex items-center gap-2 mb-5">
             <Trophy className="w-5 h-5 text-gold-400" />
             <h2 className="text-lg font-semibold text-white">Placar ao vivo</h2>
-            <span className="ml-auto text-xs text-ocean-500">atualiza a cada visita</span>
+            <span className="ml-auto text-xs text-ocean-500">
+              {resultsRevealed ? 'resultado revelado' : 'aguardando apuração'}
+            </span>
           </div>
+
+          {!resultsRevealed && hasVotes && (
+            <div className="mb-3 rounded-xl border border-ocean-700 bg-ocean-800/40 px-4 py-3 flex items-center gap-2 text-xs text-ocean-300">
+              <EyeOff className="w-4 h-4 text-gold-400 flex-shrink-0" />
+              Os nomes serão revelados após a apuração oficial.
+            </div>
+          )}
 
           {hasVotes ? (
             <div className="space-y-2">
@@ -137,8 +149,11 @@ export default async function HomePage() {
                       <span className="w-6 text-center text-sm flex-shrink-0">
                         {i < 3 ? MEDAL[i] : <span className="text-ocean-500 text-xs">{i + 1}</span>}
                       </span>
-                      <p className={`flex-1 text-sm font-semibold truncate ${isLeader ? 'text-gold-300' : 'text-white'}`}>
-                        {film.title}
+                      <p
+                        className={`flex-1 text-sm font-semibold truncate ${isLeader ? 'text-gold-300' : 'text-white'} ${!resultsRevealed ? 'select-none blur-md' : ''}`}
+                        aria-hidden={!resultsRevealed}
+                      >
+                        {resultsRevealed ? film.title : '████████████'}
                       </p>
                       <span className={`text-sm font-bold flex-shrink-0 ${isLeader ? 'text-gold-400' : 'text-ocean-300'}`}>
                         {film.votes} {film.votes === 1 ? 'voto' : 'votos'}

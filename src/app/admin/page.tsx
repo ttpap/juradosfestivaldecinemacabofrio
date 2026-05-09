@@ -2,10 +2,11 @@ export const dynamic = 'force-dynamic'
 
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { Film, BarChart2, Power, PowerOff, Plus } from 'lucide-react'
+import { Film, BarChart2, Power, PowerOff, Plus, Eye, EyeOff } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { createClient as adminClient } from '@supabase/supabase-js'
 import { QRButton } from '@/components/QRButton'
+import { getResultsRevealed, SETTINGS_TITLE } from '@/lib/festival-settings'
 
 export default async function AdminPage() {
   const supabase = await createClient()
@@ -20,8 +21,10 @@ export default async function AdminPage() {
   const { data: festival } = await admin
     .from('festivals').select('*').order('created_at', { ascending: false }).limit(1).single()
 
+  const resultsRevealed = festival ? await getResultsRevealed(festival.id) : false
+
   const { data: films } = festival
-    ? await admin.from('films').select('*').eq('festival_id', festival.id).order('title')
+    ? await admin.from('films').select('*').eq('festival_id', festival.id).neq('title', SETTINGS_TITLE).order('title')
     : { data: [] }
 
   // Contagem de votos por filme
@@ -89,6 +92,35 @@ export default async function AdminPage() {
               >
                 {festival.voting_open ? <PowerOff className="w-4 h-4" /> : <Power className="w-4 h-4" />}
                 {festival.voting_open ? 'Fechar votação' : 'Abrir votação'}
+              </button>
+            </form>
+          </div>
+        )}
+
+        {/* Reveal results toggle */}
+        {festival && (
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4 rounded-2xl border border-ocean-700 bg-ocean-800/60 p-5">
+            <div className="flex-1">
+              <p className="font-semibold text-white">Apuração / Revelação do pódio</p>
+              <p className="text-sm text-ocean-400">
+                {resultsRevealed
+                  ? 'Nomes do pódio visíveis ao público'
+                  : 'Nomes do pódio ocultos (suspense) — somente contagem aparece'}
+              </p>
+            </div>
+            <form action="/api/admin/reveal-control" method="POST">
+              <input type="hidden" name="festival_id" value={festival.id} />
+              <input type="hidden" name="revealed" value={String(!resultsRevealed)} />
+              <button
+                type="submit"
+                className={`flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold transition-colors w-full sm:w-auto ${
+                  resultsRevealed
+                    ? 'bg-ocean-700/40 border border-ocean-500/40 text-ocean-300 hover:bg-ocean-700/60'
+                    : 'bg-gold-500/20 border border-gold-500/40 text-gold-300 hover:bg-gold-500/30'
+                }`}
+              >
+                {resultsRevealed ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                {resultsRevealed ? 'Ocultar resultado' : 'Revelar resultado'}
               </button>
             </form>
           </div>

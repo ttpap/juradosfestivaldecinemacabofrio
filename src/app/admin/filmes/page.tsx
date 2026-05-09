@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { ArrowLeft, Plus, Pencil, Film } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { createClient as adminClient } from '@supabase/supabase-js'
+import { SETTINGS_TITLE } from '@/lib/festival-settings'
 import { redirect } from 'next/navigation'
 
 export default async function FilmesPage() {
@@ -20,7 +21,7 @@ export default async function FilmesPage() {
     .from('festivals').select('id').order('created_at', { ascending: false }).limit(1).single()
 
   const { data: films } = festival
-    ? await admin.from('films').select('*').eq('festival_id', festival.id).order('title')
+    ? await admin.from('films').select('*').eq('festival_id', festival.id).neq('title', SETTINGS_TITLE).order('title')
     : { data: [] }
 
   return (

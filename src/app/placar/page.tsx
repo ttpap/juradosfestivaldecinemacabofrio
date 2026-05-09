@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { Trophy, RefreshCw, ArrowLeft } from 'lucide-react'
 
 type FilmResult = { id: string; title: string; category: string; votes: number }
-type Data = { festival: { name: string; year: number; voting_open: boolean } | null; films: FilmResult[]; total: number }
+type Data = { festival: { name: string; year: number; voting_open: boolean; results_revealed: boolean } | null; films: FilmResult[]; total: number }
 
 const MEDAL = ['🥇', '🥈', '🥉']
 const CATEGORY_COLOR: Record<string, string> = {
@@ -85,11 +85,23 @@ export default function PlacarPage() {
           </span>
         </div>
 
+        {/* Reveal banner */}
+        {data?.festival && !data.festival.results_revealed && data.films.some(f => f.votes > 0) && (
+          <div className="mb-4 rounded-xl border border-gold-500/30 bg-gold-500/5 px-4 py-3 flex items-center gap-3 text-sm text-gold-300">
+            <span className="text-xl">🎬</span>
+            <div>
+              <p className="font-semibold">Resultado em suspense</p>
+              <p className="text-xs text-ocean-300">Os nomes serão revelados quando a apuração oficial começar.</p>
+            </div>
+          </div>
+        )}
+
         {/* Ranking */}
         <div className="space-y-3">
           {data?.films.map((film, i) => {
             const pct = maxVotes > 0 ? (film.votes / maxVotes) * 100 : 0
             const isLeader = i === 0 && film.votes > 0
+            const revealed = data?.festival?.results_revealed ?? false
             return (
               <div key={film.id}
                 className={`rounded-2xl border p-4 transition-all ${isLeader ? 'border-gold-500/50 bg-gold-500/5' : 'border-ocean-700 bg-ocean-800/40'}`}>
@@ -98,8 +110,11 @@ export default function PlacarPage() {
                     {i < 3 ? MEDAL[i] : <span className="text-ocean-500 text-sm font-mono">{i + 1}</span>}
                   </span>
                   <div className="flex-1 min-w-0">
-                    <p className={`font-semibold truncate ${isLeader ? 'text-gold-300' : 'text-white'}`}>
-                      {film.title}
+                    <p
+                      className={`font-semibold truncate ${isLeader ? 'text-gold-300' : 'text-white'} ${!revealed ? 'select-none blur-md' : ''}`}
+                      aria-hidden={!revealed}
+                    >
+                      {revealed ? film.title : '████████████████'}
                     </p>
                     {film.category && (
                       <span className={`text-xs font-medium ${CATEGORY_COLOR[film.category] ?? 'text-ocean-400'}`}>

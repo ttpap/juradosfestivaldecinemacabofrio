@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic'
 
 import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
+import { getResultsRevealed } from '@/lib/festival-settings'
 
 export async function GET() {
   const admin = createClient(
@@ -9,12 +10,16 @@ export async function GET() {
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   )
 
-  const { data: festival } = await admin
+  const { data: festivalRow } = await admin
     .from('festivals')
     .select('id, name, year, voting_open')
     .order('created_at', { ascending: false })
     .limit(1)
     .single()
+
+  const festival = festivalRow
+    ? { ...festivalRow, results_revealed: await getResultsRevealed(festivalRow.id) }
+    : null
 
   const noCacheHeaders = { 'Cache-Control': 'no-store, max-age=0, must-revalidate' }
 
