@@ -30,7 +30,7 @@ export default async function RelatorioPage() {
     .eq('festival_id', festival.id)
     .order('voter_name') : { data: [] }
 
-  const rows = (votes.data ?? []) as Array<{
+  const rows = (votes.data ?? []) as unknown as Array<{
     voter_name: string
     voter_email: string
     created_at: string
