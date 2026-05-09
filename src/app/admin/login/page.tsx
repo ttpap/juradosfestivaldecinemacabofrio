@@ -181,7 +181,7 @@ function AdminLoginContent() {
             priority
           />
           <p className="mt-3 text-ocean-400 text-sm text-center tracking-wide">
-            Festival Internacional de Cinema de Cabo Frio
+            1º Festival Internacional de Cinema de Cabo Frio
           </p>
         </div>
 

@@ -130,7 +130,7 @@ export default async function RelatorioPage() {
             </h2>
             {festival && (
               <p className="text-ocean-400 text-sm mt-1">
-                Festival Internacional de Cinema de Cabo Frio · {festival.year}
+                1º Festival Internacional de Cinema de Cabo Frio · {festival.year}
               </p>
             )}
             <div className="flex gap-4 mt-4">

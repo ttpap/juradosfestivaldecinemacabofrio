@@ -67,10 +67,10 @@ export default async function HomePage() {
         {/* Hero */}
         <div className="text-center mb-10">
           <p className="text-gold-400 text-sm font-semibold tracking-widest uppercase mb-3">
-            {festival?.year ?? '2025'}
+            {festival?.year ?? '2026'}
           </p>
           <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight">
-            Festival Internacional de<br />Cinema de Cabo Frio
+            1º Festival Internacional de<br />Cinema de Cabo Frio
           </h1>
           <p className="text-ocean-300 text-lg max-w-xl mx-auto">
             Vote no seu filme favorito e ajude a escolher o grande vencedor do júri popular.

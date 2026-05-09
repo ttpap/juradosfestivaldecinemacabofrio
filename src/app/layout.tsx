@@ -3,7 +3,7 @@ import './globals.css'
 
 export const metadata: Metadata = {
   title: 'FINCCA — Sistema de Votação',
-  description: 'Festival Internacional de Cinema de Cabo Frio — Sistema oficial de votação do Júri Popular e Júri Técnico.',
+  description: '1º Festival Internacional de Cinema de Cabo Frio 2026 — Sistema oficial de votação do Júri Popular.',
   icons: { icon: '/logo.png' },
 }
 
