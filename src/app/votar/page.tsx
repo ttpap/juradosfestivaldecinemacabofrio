@@ -33,14 +33,14 @@ export default function VotarPage() {
     setVoterEmail(email)
 
     async function load() {
-      const festRes = await fetch('/api/festival')
+      const festRes = await fetch('/api/festival', { cache: 'no-store' })
       const { festival: fest, films: f } = await festRes.json()
       if (!fest) { setLoading(false); return }
       setFestival(fest)
       setFilms(f ?? [])
 
       // Verifica voto anterior
-      const res = await fetch(`/api/votes/popular?email=${encodeURIComponent(email)}`)
+      const res = await fetch(`/api/votes/popular?email=${encodeURIComponent(email)}`, { cache: 'no-store' })
       const { vote } = await res.json()
       if (vote?.film_id) {
         setSelectedFilm(vote.film_id)

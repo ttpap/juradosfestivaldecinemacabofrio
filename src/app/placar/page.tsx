@@ -22,7 +22,7 @@ export default function PlacarPage() {
   const fetch_ = useCallback(async (showSpinner = false) => {
     if (showSpinner) setRefreshing(true)
     try {
-      const res = await fetch('/api/placar')
+      const res = await fetch('/api/placar', { cache: 'no-store' })
       const json = await res.json()
       setData(json)
       setLastUpdate(new Date())

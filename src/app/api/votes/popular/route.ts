@@ -62,14 +62,15 @@ export async function GET(request: Request) {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   )
+  const noCacheHeaders = { 'Cache-Control': 'no-store, max-age=0, must-revalidate' }
   const { searchParams } = new URL(request.url)
   const email = searchParams.get('email')?.toLowerCase().trim()
-  if (!email) return NextResponse.json({ vote: null })
+  if (!email) return NextResponse.json({ vote: null }, { headers: noCacheHeaders })
 
   const { data: festival } = await admin
     .from('festivals').select('id').order('created_at', { ascending: false }).limit(1).single()
 
-  if (!festival) return NextResponse.json({ vote: null })
+  if (!festival) return NextResponse.json({ vote: null }, { headers: noCacheHeaders })
 
   const { data: vote } = await admin
     .from('public_votes')
@@ -78,5 +79,5 @@ export async function GET(request: Request) {
     .eq('voter_email', email)
     .single()
 
-  return NextResponse.json({ vote: vote ?? null })
+  return NextResponse.json({ vote: vote ?? null }, { headers: noCacheHeaders })
 }

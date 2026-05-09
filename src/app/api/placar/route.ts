@@ -1,14 +1,16 @@
+export const dynamic = 'force-dynamic'
+
 import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
-
-export const dynamic = 'force-dynamic'
+const noCacheHeaders = { 'Cache-Control': 'no-store, max-age=0, must-revalidate' }
 
 export async function GET() {
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+
   const { data: festival } = await supabase
     .from('festivals')
     .select('id, name, year, voting_open')
@@ -16,7 +18,7 @@ export async function GET() {
     .limit(1)
     .single()
 
-  if (!festival) return NextResponse.json({ films: [], festival: null })
+  if (!festival) return NextResponse.json({ films: [], festival: null }, { headers: noCacheHeaders })
 
   const { data: films } = await supabase
     .from('films')
@@ -38,5 +40,5 @@ export async function GET() {
     .map(f => ({ ...f, votes: voteCounts[f.id] ?? 0 }))
     .sort((a, b) => b.votes - a.votes)
 
-  return NextResponse.json({ festival, films: ranked, total: votes?.length ?? 0 })
+  return NextResponse.json({ festival, films: ranked, total: votes?.length ?? 0 }, { headers: noCacheHeaders })
 }

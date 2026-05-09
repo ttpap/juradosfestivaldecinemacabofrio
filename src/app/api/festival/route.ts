@@ -16,7 +16,9 @@ export async function GET() {
     .limit(1)
     .single()
 
-  if (!festival) return NextResponse.json({ festival: null, films: [] })
+  const noCacheHeaders = { 'Cache-Control': 'no-store, max-age=0, must-revalidate' }
+
+  if (!festival) return NextResponse.json({ festival: null, films: [] }, { headers: noCacheHeaders })
 
   const { data: films } = await admin
     .from('films')
@@ -25,5 +27,5 @@ export async function GET() {
     .eq('active', true)
     .order('title')
 
-  return NextResponse.json({ festival, films: films ?? [] })
+  return NextResponse.json({ festival, films: films ?? [] }, { headers: noCacheHeaders })
 }
