@@ -5,12 +5,15 @@ import Image from 'next/image'
 import { createClient } from '@/lib/supabase/server'
 import { createClient as adminClient } from '@supabase/supabase-js'
 import { PrintButton } from '@/components/PrintButton'
+import { DeleteVoteButton } from '@/components/DeleteVoteButton'
 import { FileText } from 'lucide-react'
 
 export default async function RelatorioPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/admin/login')
+
+  const isAdmin = user.email === 'antonpap@gmail.com'
 
   const admin = adminClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -26,11 +29,12 @@ export default async function RelatorioPage() {
 
   const votes = festival ? await admin
     .from('public_votes')
-    .select('voter_name, voter_email, created_at, film:films(title, category)')
+    .select('id, voter_name, voter_email, created_at, film:films(title, category)')
     .eq('festival_id', festival.id)
     .order('voter_name') : { data: [] }
 
   const rows = (votes.data ?? []) as unknown as Array<{
+    id: string
     voter_name: string
     voter_email: string
     created_at: string
@@ -157,6 +161,7 @@ export default async function RelatorioPage() {
                     <th className="text-left px-4 py-3 text-xs font-semibold text-ocean-400 uppercase tracking-wide">Filme votado</th>
                     <th className="text-left px-4 py-3 text-xs font-semibold text-ocean-400 uppercase tracking-wide">Categoria</th>
                     <th className="text-left px-4 py-3 text-xs font-semibold text-ocean-400 uppercase tracking-wide">Data/hora</th>
+                    {isAdmin && <th className="px-4 py-3 w-16 no-print" />}
                   </tr>
                 </thead>
                 <tbody>
@@ -173,6 +178,11 @@ export default async function RelatorioPage() {
                           ? new Date(row.created_at).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })
                           : '—'}
                       </td>
+                      {isAdmin && (
+                        <td className="px-4 py-3 no-print">
+                          <DeleteVoteButton voteId={row.id} />
+                        </td>
+                      )}
                     </tr>
                   ))}
                 </tbody>

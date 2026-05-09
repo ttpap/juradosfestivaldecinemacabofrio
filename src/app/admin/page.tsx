@@ -5,7 +5,6 @@ import Link from 'next/link'
 import { Film, BarChart2, Power, PowerOff, Plus } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { QRButton } from '@/components/QRButton'
-import { ClearVotesButton } from '@/components/ClearVotesButton'
 
 export default async function AdminPage() {
   const supabase = await createClient()
@@ -124,9 +123,6 @@ export default async function AdminPage() {
             </div>
           </section>
         )}
-
-        {/* Zerar votos — apenas para antonpap@gmail.com */}
-        {user.email === 'antonpap@gmail.com' && <ClearVotesButton />}
 
         {/* Quick link to add film */}
         <Link href="/admin/filmes/novo"
