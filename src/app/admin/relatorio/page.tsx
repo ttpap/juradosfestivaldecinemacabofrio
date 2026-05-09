@@ -43,17 +43,68 @@ export default async function RelatorioPage() {
     <>
       <style>{`
         @media print {
-          .no-print { display: none !important; }
-          body { background: white !important; color: black !important; }
-          .print-page { padding: 24px !important; }
-          table { font-size: 11px !important; }
-          th, td { border-color: #ccc !important; color: black !important; }
-          .print-header { color: black !important; }
+          @page { margin: 1.5cm; size: A4 portrait; }
+
+          /* Esconde sidebar, nav mobile, botões de tela */
+          aside, nav, .no-print { display: none !important; }
+
+          /* Reset layout do admin */
+          body { background: white !important; color: #111 !important; font-family: Arial, sans-serif !important; }
+          .md\\:ml-56 { margin-left: 0 !important; }
+          .pb-20, .md\\:pb-0 { padding-bottom: 0 !important; }
+          .min-h-screen { min-height: auto !important; }
+          .max-w-5xl { max-width: 100% !important; }
+          .sticky { position: static !important; }
+
+          /* Cabeçalho do relatório */
+          .print-header h2 { font-size: 18px !important; color: #111 !important; margin: 6px 0 !important; }
+          .print-header p  { font-size: 12px !important; color: #444 !important; margin: 2px 0 !important; }
+
+          /* Cards de stats */
+          .print-stat {
+            display: inline-block !important;
+            border: 1px solid #ccc !important;
+            border-radius: 6px !important;
+            padding: 6px 14px !important;
+            margin-right: 12px !important;
+            background: white !important;
+          }
+          .print-stat-label { font-size: 9px !important; color: #666 !important; text-transform: uppercase !important; }
+          .print-stat-value { font-size: 20px !important; font-weight: bold !important; color: #111 !important; }
+
+          /* Tabela */
+          table { width: 100% !important; border-collapse: collapse !important; font-size: 10px !important; margin-top: 16px !important; }
+          thead tr { background: #f0f0f0 !important; }
+          th {
+            border: 1px solid #bbb !important;
+            padding: 6px 8px !important;
+            text-align: left !important;
+            font-weight: bold !important;
+            color: #222 !important;
+            font-size: 9px !important;
+            text-transform: uppercase !important;
+          }
+          td {
+            border: 1px solid #ddd !important;
+            padding: 5px 8px !important;
+            color: #222 !important;
+          }
+          tr:nth-child(even) td { background: #f9f9f9 !important; }
+
+          /* Força exibição das colunas que eram hidden */
+          th, td { display: table-cell !important; }
+
+          /* Overflow */
+          .overflow-x-auto { overflow: visible !important; }
+          .rounded-2xl, .rounded-xl { border-radius: 4px !important; }
+
+          /* Logo */
+          img { max-height: 48px !important; }
         }
       `}</style>
 
-      <div className="min-h-screen bg-ocean-950 text-white print-page">
-        {/* Cabeçalho de tela */}
+      <div className="min-h-screen bg-ocean-950 text-white">
+        {/* Cabeçalho de tela — oculto na impressão */}
         <div className="no-print border-b border-ocean-800 bg-ocean-900/80 sticky top-0 z-10">
           <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -65,9 +116,9 @@ export default async function RelatorioPage() {
         </div>
 
         <div className="max-w-5xl mx-auto px-4 py-8">
-          {/* Cabeçalho do relatório (visível na impressão também) */}
+          {/* Cabeçalho visível também na impressão */}
           <div className="mb-8 print-header">
-            <div className="flex items-center gap-4 mb-2">
+            <div className="flex items-center gap-4 mb-3">
               <Image src="/logo.png" alt="FINCCA" width={100} height={54} className="object-contain" />
             </div>
             <h2 className="text-2xl font-bold text-white">
@@ -75,17 +126,17 @@ export default async function RelatorioPage() {
             </h2>
             {festival && (
               <p className="text-ocean-400 text-sm mt-1">
-                {festival.name ?? 'FINCCA'} · {festival.year}
+                Festival Internacional de Cinema de Cabo Frio · {festival.year}
               </p>
             )}
-            <div className="flex gap-6 mt-4">
-              <div className="rounded-xl border border-ocean-700 bg-ocean-800/60 px-5 py-3">
-                <p className="text-xs text-ocean-400">Total de votos</p>
-                <p className="text-2xl font-bold text-white">{rows.length}</p>
+            <div className="flex gap-4 mt-4">
+              <div className="print-stat rounded-xl border border-ocean-700 bg-ocean-800/60 px-5 py-3">
+                <p className="print-stat-label text-xs text-ocean-400">Total de votos</p>
+                <p className="print-stat-value text-2xl font-bold text-white">{rows.length}</p>
               </div>
-              <div className="rounded-xl border border-ocean-700 bg-ocean-800/60 px-5 py-3">
-                <p className="text-xs text-ocean-400">Gerado em</p>
-                <p className="text-sm font-semibold text-white mt-0.5">{now}</p>
+              <div className="print-stat rounded-xl border border-ocean-700 bg-ocean-800/60 px-5 py-3">
+                <p className="print-stat-label text-xs text-ocean-400">Gerado em</p>
+                <p className="print-stat-value text-sm font-semibold text-white mt-0.5">{now}</p>
               </div>
             </div>
           </div>
@@ -104,8 +155,8 @@ export default async function RelatorioPage() {
                     <th className="text-left px-4 py-3 text-xs font-semibold text-ocean-400 uppercase tracking-wide">Nome</th>
                     <th className="text-left px-4 py-3 text-xs font-semibold text-ocean-400 uppercase tracking-wide">E-mail</th>
                     <th className="text-left px-4 py-3 text-xs font-semibold text-ocean-400 uppercase tracking-wide">Filme votado</th>
-                    <th className="text-left px-4 py-3 text-xs font-semibold text-ocean-400 uppercase tracking-wide hidden sm:table-cell">Categoria</th>
-                    <th className="text-left px-4 py-3 text-xs font-semibold text-ocean-400 uppercase tracking-wide hidden md:table-cell">Data/hora</th>
+                    <th className="text-left px-4 py-3 text-xs font-semibold text-ocean-400 uppercase tracking-wide">Categoria</th>
+                    <th className="text-left px-4 py-3 text-xs font-semibold text-ocean-400 uppercase tracking-wide">Data/hora</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -116,8 +167,8 @@ export default async function RelatorioPage() {
                       <td className="px-4 py-3 font-medium text-white">{row.voter_name}</td>
                       <td className="px-4 py-3 text-ocean-300 text-xs">{row.voter_email}</td>
                       <td className="px-4 py-3 font-semibold text-gold-400">{row.film?.title ?? '—'}</td>
-                      <td className="px-4 py-3 text-ocean-400 text-xs hidden sm:table-cell">{row.film?.category ?? '—'}</td>
-                      <td className="px-4 py-3 text-ocean-500 text-xs hidden md:table-cell">
+                      <td className="px-4 py-3 text-ocean-400 text-xs">{row.film?.category ?? '—'}</td>
+                      <td className="px-4 py-3 text-ocean-500 text-xs">
                         {row.created_at
                           ? new Date(row.created_at).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })
                           : '—'}
@@ -129,7 +180,6 @@ export default async function RelatorioPage() {
             </div>
           )}
 
-          {/* Rodapé de impressão */}
           <p className="no-print mt-6 text-xs text-ocean-600 text-center">
             Clique em &quot;Imprimir / Salvar PDF&quot; para exportar este relatório.
           </p>
