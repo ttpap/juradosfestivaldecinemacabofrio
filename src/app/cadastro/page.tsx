@@ -14,6 +14,12 @@ import { Input } from '@/components/ui/Input'
 const schema = z.object({
   voter_name:  z.string().min(2, 'Nome muito curto'),
   voter_email: z.string().email('E-mail inválido'),
+  birth_date:  z.string().min(1, 'Obrigatório').refine(val => {
+    const d = new Date(val)
+    if (isNaN(d.getTime())) return false
+    const age = Math.floor((Date.now() - d.getTime()) / (365.25 * 24 * 60 * 60 * 1000))
+    return age >= 5 && age <= 120
+  }, 'Data inválida'),
 })
 type FormData = z.infer<typeof schema>
 
@@ -29,11 +35,10 @@ export default function CadastroPage() {
     setLoading(true)
     localStorage.setItem('voter_name', data.voter_name)
     localStorage.setItem('voter_email', data.voter_email)
-    // Salva no banco independente de votar
     await fetch('/api/voters', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: data.voter_name, email: data.voter_email }),
+      body: JSON.stringify({ name: data.voter_name, email: data.voter_email, birth_date: data.birth_date }),
     }).catch(() => {})
     router.push('/votar')
   }
@@ -72,6 +77,12 @@ export default function CadastroPage() {
               placeholder="seu@email.com"
               error={errors.voter_email?.message}
               {...register('voter_email')}
+            />
+            <Input
+              label="Data de nascimento"
+              type="date"
+              error={errors.birth_date?.message}
+              {...register('birth_date')}
             />
             <p className="text-xs text-ocean-500">
               Seu e-mail garante 1 voto por pessoa. Não será divulgado.

@@ -5,8 +5,9 @@ import { NextResponse } from 'next/server'
 import { z } from 'zod'
 
 const schema = z.object({
-  name:  z.string().min(2),
-  email: z.string().email(),
+  name:       z.string().min(2),
+  email:      z.string().email(),
+  birth_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Data inválida'),
 })
 
 export async function POST(request: Request) {
@@ -20,7 +21,7 @@ export async function POST(request: Request) {
   if (!parsed.success)
     return NextResponse.json({ error: 'Dados inválidos.' }, { status: 400 })
 
-  const { name, email } = parsed.data
+  const { name, email, birth_date } = parsed.data
   const normalizedEmail = email.toLowerCase().trim()
 
   const { data: festival } = await admin
@@ -33,9 +34,8 @@ export async function POST(request: Request) {
   if (!festival)
     return NextResponse.json({ error: 'Nenhum festival.' }, { status: 404 })
 
-  // Upsert — atualiza nome se email já existe
   await admin.from('voters').upsert(
-    { festival_id: festival.id, name: name.trim(), email: normalizedEmail },
+    { festival_id: festival.id, name: name.trim(), email: normalizedEmail, birth_date },
     { onConflict: 'festival_id,email' }
   )
 

@@ -5,6 +5,27 @@ import { createClient } from '@/lib/supabase/server'
 import { createClient as adminClient } from '@supabase/supabase-js'
 import { Users } from 'lucide-react'
 
+function calcAge(birthDate: string): number {
+  const birth = new Date(birthDate)
+  const today = new Date()
+  let age = today.getFullYear() - birth.getFullYear()
+  if (
+    today.getMonth() < birth.getMonth() ||
+    (today.getMonth() === birth.getMonth() && today.getDate() < birth.getDate())
+  ) age--
+  return age
+}
+
+function ageGroup(age: number): string {
+  if (age < 18)  return 'Menor de 18'
+  if (age < 25)  return '18–24'
+  if (age < 35)  return '25–34'
+  if (age < 45)  return '35–44'
+  if (age < 55)  return '45–54'
+  if (age < 65)  return '55–64'
+  return '65+'
+}
+
 export default async function CadastradosPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -20,7 +41,7 @@ export default async function CadastradosPage() {
 
   const [{ data: voters }, { data: votes }] = await Promise.all([
     festival
-      ? admin.from('voters').select('id, name, email, created_at').eq('festival_id', festival.id).order('created_at', { ascending: false })
+      ? admin.from('voters').select('id, name, email, birth_date, created_at').eq('festival_id', festival.id).order('created_at', { ascending: false })
       : Promise.resolve({ data: [] }),
     festival
       ? admin.from('public_votes').select('voter_email, film_id, films(title)').eq('festival_id', festival.id)
@@ -74,18 +95,26 @@ export default async function CadastradosPage() {
                 <thead>
                   <tr className="border-b border-ocean-700 bg-ocean-800/60">
                     <th className="text-left px-4 py-3 text-xs font-semibold text-ocean-400 uppercase tracking-wide">Nome</th>
-                    <th className="text-left px-4 py-3 text-xs font-semibold text-ocean-400 uppercase tracking-wide">E-mail</th>
+                    <th className="text-left px-4 py-3 text-xs font-semibold text-ocean-400 uppercase tracking-wide hidden md:table-cell">E-mail</th>
+                    <th className="text-left px-4 py-3 text-xs font-semibold text-ocean-400 uppercase tracking-wide">Idade</th>
                     <th className="text-left px-4 py-3 text-xs font-semibold text-ocean-400 uppercase tracking-wide hidden sm:table-cell">Cadastro</th>
                     <th className="text-left px-4 py-3 text-xs font-semibold text-ocean-400 uppercase tracking-wide">Voto</th>
                   </tr>
                 </thead>
                 <tbody>
                   {voters?.map((v, i) => {
+                    const age = v.birth_date ? calcAge(v.birth_date) : null
+                    const group = age !== null ? ageGroup(age) : null
                     const filmVoted = voteMap[v.email]
                     return (
                       <tr key={v.id} className={`border-b border-ocean-800 ${i % 2 === 0 ? '' : 'bg-ocean-800/20'}`}>
                         <td className="px-4 py-3 font-medium text-white">{v.name}</td>
-                        <td className="px-4 py-3 text-ocean-300">{v.email}</td>
+                        <td className="px-4 py-3 text-ocean-300 hidden md:table-cell">{v.email}</td>
+                        <td className="px-4 py-3 text-ocean-200">
+                          {age !== null ? (
+                            <span>{age} <span className="text-xs text-ocean-500">· {group}</span></span>
+                          ) : '—'}
+                        </td>
                         <td className="px-4 py-3 text-ocean-500 hidden sm:table-cell">
                           {new Date(v.created_at).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
                         </td>
