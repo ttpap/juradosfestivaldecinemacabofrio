@@ -53,7 +53,20 @@ export default async function CadastradosPage() {
     voteMap[v.voter_email] = (v.films as any)?.title ?? '—'
   }
 
-  const total = voters?.length ?? 0
+  // Emails that voted but have no voter record (registered before table existed)
+  const registeredEmails = new Set((voters ?? []).map((v: any) => v.email))
+  const orphanVoters = (votes ?? [])
+    .filter(v => !registeredEmails.has(v.voter_email))
+    .map(v => ({
+      id: v.voter_email,
+      name: null,
+      email: v.voter_email,
+      birth_date: null,
+      created_at: null,
+    }))
+
+  const allRows = [...(voters ?? []), ...orphanVoters]
+  const total = allRows.length
   const totalVoted = Object.keys(voteMap).length
 
   return (
@@ -83,7 +96,7 @@ export default async function CadastradosPage() {
         </div>
 
         {/* Tabela */}
-        {total === 0 ? (
+        {allRows.length === 0 ? (
           <div className="rounded-2xl border border-ocean-700 bg-ocean-800/40 py-16 text-center">
             <Users className="w-8 h-8 text-ocean-600 mx-auto mb-3" />
             <p className="text-ocean-400 text-sm">Nenhum cadastro ainda.</p>
@@ -102,21 +115,21 @@ export default async function CadastradosPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {voters?.map((v, i) => {
+                  {allRows.map((v, i) => {
                     const age = v.birth_date ? calcAge(v.birth_date) : null
                     const group = age !== null ? ageGroup(age) : null
                     const filmVoted = voteMap[v.email]
                     return (
                       <tr key={v.id} className={`border-b border-ocean-800 ${i % 2 === 0 ? '' : 'bg-ocean-800/20'}`}>
-                        <td className="px-4 py-3 font-medium text-white">{v.name}</td>
+                        <td className="px-4 py-3 font-medium text-white">{v.name ?? <span className="text-ocean-600 italic text-xs">sem cadastro</span>}</td>
                         <td className="px-4 py-3 text-ocean-300 hidden md:table-cell">{v.email}</td>
                         <td className="px-4 py-3 text-ocean-200">
                           {age !== null ? (
                             <span>{age} <span className="text-xs text-ocean-500">· {group}</span></span>
-                          ) : '—'}
+                          ) : <span className="text-ocean-600">—</span>}
                         </td>
                         <td className="px-4 py-3 text-ocean-500 hidden sm:table-cell">
-                          {new Date(v.created_at).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                          {v.created_at ? new Date(v.created_at).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : <span className="text-ocean-600">—</span>}
                         </td>
                         <td className="px-4 py-3">
                           {filmVoted ? (

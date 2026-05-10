@@ -34,10 +34,15 @@ export async function POST(request: Request) {
   if (!festival)
     return NextResponse.json({ error: 'Nenhum festival.' }, { status: 404 })
 
-  await admin.from('voters').upsert(
+  const { error } = await admin.from('voters').upsert(
     { festival_id: festival.id, name: name.trim(), email: normalizedEmail, birth_date },
     { onConflict: 'festival_id,email' }
   )
+
+  if (error) {
+    console.error('voters upsert error:', error.message)
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
 
   return NextResponse.json({ ok: true })
 }
