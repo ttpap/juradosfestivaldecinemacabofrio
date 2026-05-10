@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { createClient as adminClient } from '@supabase/supabase-js'
 import { Users } from 'lucide-react'
-import { PrintButton } from '@/components/ui/PrintButton'
+import { ExportPDFButton } from '@/components/ui/ExportPDFButton'
 
 function calcAge(birthDate: string): number {
   const birth = new Date(birthDate)
@@ -68,42 +68,27 @@ export default async function CadastradosPage() {
   const allRows = [...(voters ?? []), ...orphanVoters]
   const total = allRows.length
   const totalVoted = Object.keys(voteMap).length
-  const printDate = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+  const festivalName = (festival as any)?.name ?? 'Festival'
+  const pdfRows = allRows.map(v => ({
+    name: v.name ?? null,
+    email: v.email,
+    birth_date: v.birth_date ?? null,
+    film: voteMap[v.email] ?? null,
+  }))
 
   return (
-    <>
-      <style>{`
-        @media print {
-          body { background: white !important; color: black !important; }
-          .print-hide { display: none !important; }
-          .print-show { display: block !important; }
-          table { border-collapse: collapse; width: 100%; font-size: 11px; }
-          th, td { border: 1px solid #ccc; padding: 4px 8px; color: black !important; background: white !important; }
-          th { background: #f0f0f0 !important; font-weight: 600; }
-          .hidden { display: table-cell !important; }
-          * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-        }
-      `}</style>
-
-      <div className="min-h-screen bg-ocean-950 text-white">
-        <header className="border-b border-ocean-800 bg-ocean-900/80 sticky top-0 z-10 print-hide">
+    <div className="min-h-screen bg-ocean-950 text-white">
+        <header className="border-b border-ocean-800 bg-ocean-900/80 sticky top-0 z-10">
           <div className="max-w-5xl mx-auto px-4 py-4 flex items-center gap-3">
             <Users className="w-5 h-5 text-gold-400" />
             <h1 className="font-bold text-white flex-1">Cadastrados</h1>
-            <PrintButton />
+            <ExportPDFButton rows={pdfRows} festivalName={festivalName} total={total} totalVoted={totalVoted} />
           </div>
         </header>
 
-        {/* Cabeçalho só visível na impressão */}
-        <div className="hidden print-show px-6 pt-6 pb-2">
-          <h1 className="text-xl font-bold text-black">FINCCA – Cadastrados do Júri Popular</h1>
-          {festival && <p className="text-sm text-gray-600">{(festival as any).name}</p>}
-          <p className="text-xs text-gray-500 mt-1">Gerado em {printDate} · Total: {total} · Votaram: {totalVoted}</p>
-        </div>
-
         <div className="max-w-5xl mx-auto px-4 py-6 space-y-6">
           {/* Stats */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 print-hide">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
             <div className="rounded-2xl border border-ocean-700 bg-ocean-800/60 p-5">
               <p className="text-xs text-ocean-400 mb-1">Cadastrados</p>
               <p className="text-3xl font-bold text-white">{total}</p>
@@ -174,6 +159,5 @@ export default async function CadastradosPage() {
           )}
         </div>
       </div>
-    </>
   )
 }
