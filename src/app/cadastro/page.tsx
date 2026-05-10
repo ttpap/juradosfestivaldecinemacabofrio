@@ -25,10 +25,16 @@ export default function CadastroPage() {
     resolver: zodResolver(schema),
   })
 
-  const onSubmit = (data: FormData) => {
+  const onSubmit = async (data: FormData) => {
     setLoading(true)
     localStorage.setItem('voter_name', data.voter_name)
     localStorage.setItem('voter_email', data.voter_email)
+    // Salva no banco independente de votar
+    await fetch('/api/voters', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: data.voter_name, email: data.voter_email }),
+    }).catch(() => {})
     router.push('/votar')
   }
 

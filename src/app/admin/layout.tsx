@@ -1,10 +1,11 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import { LayoutDashboard, Film, BarChart2, FileText } from 'lucide-react'
+import { LayoutDashboard, Film, BarChart2, FileText, Users } from 'lucide-react'
 
 const navItems = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/admin/filmes', label: 'Filmes', icon: Film },
+  { href: '/admin/cadastrados', label: 'Cadastrados', icon: Users },
   { href: '/admin/relatorio', label: 'Relatório', icon: FileText },
   { href: '/placar', label: 'Placar ao Vivo', icon: BarChart2 },
 ]
