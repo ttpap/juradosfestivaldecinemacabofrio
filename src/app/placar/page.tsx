@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Trophy, RefreshCw, ArrowLeft } from 'lucide-react'
-import { RevealText } from '@/components/RevealText'
 
 type FilmResult = { id: string; title: string; category: string; votes: number }
 type Data = { festival: { name: string; year: number; voting_open: boolean; results_revealed: boolean } | null; films: FilmResult[]; total: number }
@@ -102,7 +101,6 @@ export default function PlacarPage() {
           {data?.films.map((film, i) => {
             const pct = maxVotes > 0 ? (film.votes / maxVotes) * 100 : 0
             const isLeader = i === 0 && film.votes > 0
-            const revealed = data?.festival?.results_revealed ?? false
             return (
               <div key={film.id}
                 className={`rounded-2xl border p-4 transition-all ${isLeader ? 'border-gold-500/50 bg-gold-500/5' : 'border-ocean-700 bg-ocean-800/40'}`}>
@@ -112,12 +110,7 @@ export default function PlacarPage() {
                   </span>
                   <div className="flex-1 min-w-0">
                     <p className={`font-semibold truncate ${isLeader ? 'text-gold-300' : 'text-white'}`}>
-                      <RevealText
-                        revealed={revealed}
-                        filmId={film.id}
-                        title={film.title}
-                        blockChars="████████████████"
-                      />
+                      {film.title}
                     </p>
                     {film.category && (
                       <span className={`text-xs font-medium ${CATEGORY_COLOR[film.category] ?? 'text-ocean-400'}`}>
