@@ -6,6 +6,7 @@ import { Film, BarChart2, Power, PowerOff, Plus, Eye, EyeOff } from 'lucide-reac
 import { createClient } from '@/lib/supabase/server'
 import { createClient as adminClient } from '@supabase/supabase-js'
 import { QRButton } from '@/components/QRButton'
+import { NotifyVotersButton } from '@/components/NotifyVotersButton'
 import { getResultsRevealed, SETTINGS_TITLE } from '@/lib/festival-settings'
 
 export default async function AdminPage() {
@@ -29,12 +30,15 @@ export default async function AdminPage() {
 
   // Contagem de votos por filme
   const { data: votes } = festival
-    ? await admin.from('public_votes').select('film_id').eq('festival_id', festival.id)
+    ? await admin.from('public_votes').select('film_id, comment_film, comment_festival').eq('festival_id', festival.id)
     : { data: [] }
 
   const voteCounts: Record<string, number> = {}
   votes?.forEach(v => { voteCounts[v.film_id] = (voteCounts[v.film_id] ?? 0) + 1 })
   const totalVotes = votes?.length ?? 0
+  const votersWithoutComments = (votes ?? []).filter(
+    (v: any) => !v.comment_film || !v.comment_festival
+  ).length
 
   const rankedFilms = (films ?? [])
     .map(f => ({ ...f, votes: voteCounts[f.id] ?? 0 }))
@@ -125,6 +129,9 @@ export default async function AdminPage() {
             </form>
           </div>
         )}
+
+        {/* Notify voters without comments */}
+        {festival && <NotifyVotersButton votersWithoutComments={votersWithoutComments} />}
 
         {/* Results */}
         {rankedFilms.length > 0 && (
