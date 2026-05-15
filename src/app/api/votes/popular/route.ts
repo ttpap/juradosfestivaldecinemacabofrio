@@ -5,9 +5,11 @@ import { NextResponse } from 'next/server'
 import { z } from 'zod'
 
 const schema = z.object({
-  film_id:     z.string().uuid(),
-  voter_name:  z.string().min(2),
-  voter_email: z.string().email(),
+  film_id:         z.string().uuid(),
+  voter_name:      z.string().min(2),
+  voter_email:     z.string().email(),
+  comment_film:    z.string().min(10, 'Comentário sobre o filme deve ter pelo menos 10 caracteres.').optional(),
+  comment_festival: z.string().min(10, 'Comentário sobre o festival deve ter pelo menos 10 caracteres.').optional(),
 })
 
 export async function POST(request: Request) {
@@ -20,7 +22,7 @@ export async function POST(request: Request) {
   if (!parsed.success)
     return NextResponse.json({ error: 'Dados inválidos.' }, { status: 400 })
 
-  const { film_id, voter_name, voter_email } = parsed.data
+  const { film_id, voter_name, voter_email, comment_film, comment_festival } = parsed.data
   const email = voter_email.toLowerCase().trim()
 
   const { data: festival } = await admin
@@ -48,6 +50,8 @@ export async function POST(request: Request) {
     film_id,
     voter_name: voter_name.trim(),
     voter_email: email,
+    comment_film: comment_film?.trim() || null,
+    comment_festival: comment_festival?.trim() || null,
   })
 
   if (error)
@@ -74,7 +78,7 @@ export async function GET(request: Request) {
 
   const { data: vote } = await admin
     .from('public_votes')
-    .select('film_id')
+    .select('film_id, comment_film, comment_festival')
     .eq('festival_id', festival.id)
     .eq('voter_email', email)
     .single()

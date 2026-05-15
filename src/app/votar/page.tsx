@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, Film, CheckCircle2, Vote, RefreshCw } from 'lucide-react'
+import { ArrowLeft, Film, CheckCircle2, Vote, RefreshCw, MessageSquare } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Toast } from '@/components/ui/Toast'
 import { LoadingSpinner } from '@/components/LoadingSpinner'
@@ -24,6 +24,8 @@ export default function VotarPage() {
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null)
   const [voterName, setVoterName] = useState('')
   const [voterEmail, setVoterEmail] = useState('')
+  const [commentFilm, setCommentFilm] = useState('')
+  const [commentFestival, setCommentFestival] = useState('')
 
   useEffect(() => {
     const name = localStorage.getItem('voter_name') ?? ''
@@ -45,6 +47,8 @@ export default function VotarPage() {
       if (vote?.film_id) {
         setSelectedFilm(vote.film_id)
         setPreviousFilm(vote.film_id)
+        if (vote.comment_film) setCommentFilm(vote.comment_film)
+        if (vote.comment_festival) setCommentFestival(vote.comment_festival)
       }
 
       setLoading(false)
@@ -68,6 +72,14 @@ export default function VotarPage() {
       setToast({ message: 'Selecione um filme para votar.', type: 'error' })
       return
     }
+    if (commentFilm.trim().length < 10) {
+      setToast({ message: 'Escreva pelo menos uma frase sobre o filme (mínimo 10 caracteres).', type: 'error' })
+      return
+    }
+    if (commentFestival.trim().length < 10) {
+      setToast({ message: 'Escreva pelo menos uma frase sobre o festival (mínimo 10 caracteres).', type: 'error' })
+      return
+    }
     if (isChanging && selectedFilm === previousFilm) {
       setToast({ message: 'Você já votou neste filme. Escolha outro para trocar.', type: 'error' })
       return
@@ -77,7 +89,13 @@ export default function VotarPage() {
       const res = await fetch('/api/votes/popular', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ film_id: selectedFilm, voter_name: voterName, voter_email: voterEmail }),
+        body: JSON.stringify({
+          film_id: selectedFilm,
+          voter_name: voterName,
+          voter_email: voterEmail,
+          comment_film: commentFilm.trim(),
+          comment_festival: commentFestival.trim(),
+        }),
       })
       const json = await res.json()
       if (!res.ok) {
@@ -207,6 +225,48 @@ export default function VotarPage() {
             </div>
           </div>
 
+          {/* Comentários obrigatórios */}
+          <div>
+            <h2 className="text-sm font-semibold text-ocean-300 uppercase tracking-wide mb-4 flex items-center gap-2">
+              <MessageSquare className="w-4 h-4 text-gold-400" />
+              Seus comentários
+            </h2>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm text-ocean-300 mb-1.5">
+                  O que achou do filme? <span className="text-ocean-500">(obrigatório)</span>
+                </label>
+                <textarea
+                  value={commentFilm}
+                  onChange={e => setCommentFilm(e.target.value)}
+                  placeholder="Escreva brevemente sua opinião sobre o filme..."
+                  maxLength={500}
+                  rows={2}
+                  className="w-full rounded-xl border border-ocean-700 bg-ocean-800/60 px-4 py-3 text-sm text-white placeholder:text-ocean-600 focus:border-gold-500/50 focus:outline-none focus:ring-1 focus:ring-gold-500/30 resize-none"
+                />
+                <p className={`text-xs mt-1 ${commentFilm.trim().length >= 10 ? 'text-ocean-600' : 'text-ocean-500'}`}>
+                  {commentFilm.trim().length}/10 caracteres mínimos
+                </p>
+              </div>
+              <div>
+                <label className="block text-sm text-ocean-300 mb-1.5">
+                  O que está achando do festival? <span className="text-ocean-500">(obrigatório)</span>
+                </label>
+                <textarea
+                  value={commentFestival}
+                  onChange={e => setCommentFestival(e.target.value)}
+                  placeholder="Escreva brevemente sua opinião sobre a mostra/festival..."
+                  maxLength={500}
+                  rows={2}
+                  className="w-full rounded-xl border border-ocean-700 bg-ocean-800/60 px-4 py-3 text-sm text-white placeholder:text-ocean-600 focus:border-gold-500/50 focus:outline-none focus:ring-1 focus:ring-gold-500/30 resize-none"
+                />
+                <p className={`text-xs mt-1 ${commentFestival.trim().length >= 10 ? 'text-ocean-600' : 'text-ocean-500'}`}>
+                  {commentFestival.trim().length}/10 caracteres mínimos
+                </p>
+              </div>
+            </div>
+          </div>
+
           <Button
             type="button"
             onClick={handleSubmit}
@@ -214,7 +274,7 @@ export default function VotarPage() {
             size="lg"
             loading={submitting}
             className="w-full"
-            disabled={isChanging && selectedFilm === previousFilm}
+            disabled={(isChanging && selectedFilm === previousFilm) || commentFilm.trim().length < 10 || commentFestival.trim().length < 10 || !selectedFilm}
           >
             {isChanging ? (
               <><RefreshCw className="w-4 h-4" /> Confirmar troca de voto</>

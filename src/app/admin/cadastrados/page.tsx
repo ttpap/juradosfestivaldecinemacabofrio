@@ -45,13 +45,17 @@ export default async function CadastradosPage() {
       ? admin.from('voters').select('id, name, email, birth_date, created_at').eq('festival_id', festival.id).order('created_at', { ascending: false })
       : Promise.resolve({ data: [] }),
     festival
-      ? admin.from('public_votes').select('voter_email, film_id, films(title)').eq('festival_id', festival.id)
+      ? admin.from('public_votes').select('voter_email, film_id, comment_film, comment_festival, films(title)').eq('festival_id', festival.id)
       : Promise.resolve({ data: [] }),
   ])
 
   const voteMap: Record<string, string> = {}
+  const commentFilmMap: Record<string, string> = {}
+  const commentFestivalMap: Record<string, string> = {}
   for (const v of votes ?? []) {
     voteMap[v.voter_email] = (v.films as any)?.title ?? '—'
+    if ((v as any).comment_film) commentFilmMap[v.voter_email] = (v as any).comment_film
+    if ((v as any).comment_festival) commentFestivalMap[v.voter_email] = (v as any).comment_festival
   }
 
   const registeredEmails = new Set((voters ?? []).map((v: any) => v.email))
@@ -74,6 +78,8 @@ export default async function CadastradosPage() {
     email: v.email,
     birth_date: v.birth_date ?? null,
     film: voteMap[v.email] ?? null,
+    comment_film: commentFilmMap[v.email] ?? null,
+    comment_festival: commentFestivalMap[v.email] ?? null,
   }))
 
   return (

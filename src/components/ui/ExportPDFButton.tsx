@@ -8,6 +8,8 @@ type VoterRow = {
   email: string
   birth_date: string | null
   film: string | null
+  comment_film: string | null
+  comment_festival: string | null
 }
 
 type Props = {
@@ -52,7 +54,7 @@ export function ExportPDFButton({ rows, festivalName, total, totalVoted }: Props
         fetchLogoBase64(),
       ])
 
-      const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
+      const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' })
       const pageW = doc.internal.pageSize.getWidth()
       const now = new Date().toLocaleDateString('pt-BR', {
         day: '2-digit', month: '2-digit', year: 'numeric',
@@ -116,15 +118,17 @@ export function ExportPDFButton({ rows, festivalName, total, totalVoted }: Props
           ? new Date(r.birth_date + 'T12:00:00').toLocaleDateString('pt-BR')
           : '—',
         r.film ?? 'Não votou',
+        r.comment_film ?? '—',
+        r.comment_festival ?? '—',
       ])
 
       autoTable(doc, {
         startY: statsY + 12,
-        head: [['#', 'Nome completo', 'E-mail', 'Dt. Nasc.', 'Filme votado']],
+        head: [['#', 'Nome', 'E-mail', 'Nasc.', 'Filme', 'Opinião filme', 'Opinião festival']],
         body: tableRows,
         styles: {
-          fontSize: 8.5,
-          cellPadding: { top: 3.5, right: 5, bottom: 3.5, left: 5 },
+          fontSize: 7,
+          cellPadding: { top: 2.5, right: 3, bottom: 2.5, left: 3 },
           textColor: C.text,
           lineColor: [220, 228, 240],
           lineWidth: 0.2,
@@ -133,18 +137,20 @@ export function ExportPDFButton({ rows, festivalName, total, totalVoted }: Props
           fillColor: C.ocean700,
           textColor: C.white,
           fontStyle: 'bold',
-          fontSize: 7.5,
+          fontSize: 6.5,
           halign: 'left',
         },
         alternateRowStyles: {
           fillColor: C.gray100,
         },
         columnStyles: {
-          0: { cellWidth: 8, halign: 'center', textColor: [140, 155, 175] },
-          1: { cellWidth: 44 },
-          2: { cellWidth: 52 },
-          3: { cellWidth: 22, halign: 'center' },
-          4: { cellWidth: 'auto' },
+          0: { cellWidth: 6, halign: 'center', textColor: [140, 155, 175] },
+          1: { cellWidth: 28 },
+          2: { cellWidth: 36 },
+          3: { cellWidth: 16, halign: 'center' },
+          4: { cellWidth: 28 },
+          5: { cellWidth: 38 },
+          6: { cellWidth: 38 },
         },
         didDrawPage: () => {
           const pageCount = (doc as any).internal.getNumberOfPages()

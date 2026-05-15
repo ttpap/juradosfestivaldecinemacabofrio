@@ -30,7 +30,7 @@ export default async function RelatorioPage() {
 
   const votes = festival ? await admin
     .from('public_votes')
-    .select('id, voter_name, voter_email, created_at, film:films(title, category)')
+    .select('id, voter_name, voter_email, created_at, comment_film, comment_festival, film:films(title, category)')
     .eq('festival_id', festival.id)
     .order('voter_name') : { data: [] }
 
@@ -39,6 +39,8 @@ export default async function RelatorioPage() {
     voter_name: string
     voter_email: string
     created_at: string
+    comment_film: string | null
+    comment_festival: string | null
     film: { title: string; category: string | null } | null
   }>
 
@@ -162,6 +164,8 @@ export default async function RelatorioPage() {
                     <th className="text-left px-3 py-3 text-xs font-semibold text-ocean-400 uppercase tracking-wide">Filme</th>
                     <th className="hidden sm:table-cell text-left px-3 py-3 text-xs font-semibold text-ocean-400 uppercase tracking-wide">Categoria</th>
                     <th className="hidden sm:table-cell text-left px-3 py-3 text-xs font-semibold text-ocean-400 uppercase tracking-wide">Data/hora</th>
+                    <th className="text-left px-3 py-3 text-xs font-semibold text-ocean-400 uppercase tracking-wide">Opinião filme</th>
+                    <th className="text-left px-3 py-3 text-xs font-semibold text-ocean-400 uppercase tracking-wide">Opinião festival</th>
                     {isAdmin && <th className="px-3 py-3 w-14 no-print" />}
                   </tr>
                 </thead>
@@ -178,6 +182,12 @@ export default async function RelatorioPage() {
                         {row.created_at
                           ? new Date(row.created_at).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })
                           : '—'}
+                      </td>
+                      <td className="px-3 py-3 text-ocean-300 text-xs max-w-[200px]">
+                        {row.comment_film ? <span className="line-clamp-2">{row.comment_film}</span> : <span className="text-ocean-600">—</span>}
+                      </td>
+                      <td className="px-3 py-3 text-ocean-300 text-xs max-w-[200px]">
+                        {row.comment_festival ? <span className="line-clamp-2">{row.comment_festival}</span> : <span className="text-ocean-600">—</span>}
                       </td>
                       {isAdmin && (
                         <td className="px-3 py-3 no-print">
