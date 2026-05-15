@@ -52,24 +52,86 @@ export async function POST(request: Request) {
         from: fromEmail,
         to: voter.voter_email,
         subject: 'FINCCA — Complete seu voto com um comentário!',
-        html: `
-          <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; background: #06111e; color: white; padding: 32px; border-radius: 16px;">
-            <img src="${appUrl}/logo.png" alt="FINCCA" width="120" style="margin-bottom: 20px;" />
-            <h2 style="color: #f0c060; margin-bottom: 8px;">Olá, ${voter.voter_name}!</h2>
-            <p style="color: #a0b4cc; font-size: 14px; line-height: 1.6;">
-              Seu voto no <strong>1º Festival Internacional de Cinema de Cabo Frio</strong> foi registrado com sucesso!
+        html: `<!DOCTYPE html>
+<html lang="pt-BR">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background:#0d1f33;font-family:Georgia,serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0d1f33;padding:40px 16px;">
+    <tr><td align="center">
+      <table width="520" cellpadding="0" cellspacing="0" style="max-width:520px;width:100%;background:#07131f;border-radius:20px;overflow:hidden;border:1px solid #1a3352;">
+
+        <!-- Header com logo -->
+        <tr>
+          <td style="background:#06111e;padding:32px 40px 28px;border-bottom:2px solid #d4a850;text-align:center;">
+            <img src="${appUrl}/logo.png" alt="FINCCA" width="140" style="display:block;margin:0 auto;" />
+          </td>
+        </tr>
+
+        <!-- Corpo -->
+        <tr>
+          <td style="padding:36px 40px 28px;">
+            <p style="margin:0 0 6px;font-size:13px;color:#d4a850;letter-spacing:2px;text-transform:uppercase;font-family:Arial,sans-serif;">Júri Popular</p>
+            <h1 style="margin:0 0 24px;font-size:22px;color:#ffffff;line-height:1.3;font-weight:normal;">
+              Olá, ${voter.voter_name}!
+            </h1>
+            <p style="margin:0 0 16px;font-size:15px;color:#8fafc8;line-height:1.7;font-family:Arial,sans-serif;">
+              Seu voto no <strong style="color:#ffffff;">1º Festival Internacional de Cinema de Cabo Frio</strong> foi registrado — obrigado por participar!
             </p>
-            <p style="color: #a0b4cc; font-size: 14px; line-height: 1.6;">
-              Agora pedimos que volte ao app para deixar um <strong>breve comentário</strong> sobre o filme que assistiu e sobre o festival. Sua opinião é muito importante pra gente!
+            <p style="margin:0 0 28px;font-size:15px;color:#8fafc8;line-height:1.7;font-family:Arial,sans-serif;">
+              Queremos ouvir você. Volte ao app e deixe um <strong style="color:#ffffff;">breve comentário</strong> sobre o filme que assistiu e sobre o festival. Sua opinião faz parte da memória do FINCCA 2026.
             </p>
-            <a href="${appUrl}/cadastro" style="display: inline-block; margin-top: 16px; padding: 12px 24px; background: #d4a850; color: #06111e; font-weight: bold; text-decoration: none; border-radius: 12px; font-size: 14px;">
-              Deixar meu comentário
-            </a>
-            <p style="color: #4a6380; font-size: 12px; margin-top: 24px;">
+
+            <!-- Botão -->
+            <table cellpadding="0" cellspacing="0" style="margin:0 0 32px;">
+              <tr>
+                <td style="background:#d4a850;border-radius:12px;">
+                  <a href="${appUrl}/cadastro" style="display:inline-block;padding:14px 32px;color:#06111e;font-family:Arial,sans-serif;font-size:14px;font-weight:bold;text-decoration:none;letter-spacing:0.5px;">
+                    Deixar meu comentário →
+                  </a>
+                </td>
+              </tr>
+            </table>
+
+            <!-- Separador -->
+            <hr style="border:none;border-top:1px solid #1a3352;margin:0 0 28px;" />
+
+            <!-- Info festival -->
+            <table cellpadding="0" cellspacing="0" width="100%">
+              <tr>
+                <td style="padding:4px 0;">
+                  <p style="margin:0;font-size:12px;color:#4a6a85;font-family:Arial,sans-serif;line-height:1.6;">
+                    📅 &nbsp;14 a 17 de maio de 2026 · Cabo Frio, RJ
+                  </p>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding:4px 0;">
+                  <p style="margin:0;font-size:12px;color:#4a6a85;font-family:Arial,sans-serif;line-height:1.6;">
+                    🎬 &nbsp;Casa Museu Carlos Scliar · UVA · UERJ
+                  </p>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <!-- Rodapé -->
+        <tr>
+          <td style="background:#040e18;padding:20px 40px;border-top:1px solid #1a3352;text-align:center;">
+            <p style="margin:0 0 4px;font-size:11px;color:#2e4d6a;font-family:Arial,sans-serif;letter-spacing:1px;text-transform:uppercase;">
               FINCCA 2026 — Festival Internacional de Cinema de Cabo Frio
             </p>
-          </div>
-        `,
+            <p style="margin:0;font-size:11px;color:#1e3347;font-family:Arial,sans-serif;">
+              Este email foi enviado porque você participou como júri popular.
+            </p>
+          </td>
+        </tr>
+
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`,
       })
       sent++
     } catch (e) {
